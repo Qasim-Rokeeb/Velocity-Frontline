@@ -45,22 +45,6 @@
 | [Vercel](https://vercel.com/) | Hosting + OG rendering |
 | [LocalStorage / Supabase] | Store scores, XP, car choices (optional backend) |
 
----
-
-## 📂 Project Structure
-
-```
-velocity-frontline/
-│
-├── app/                  # Next.js App Router
-│   └── frame/            # frame.html and OG metadata
-├── components/           # CarSelect, RaceTrack, Leaderboard, etc.
-├── lib/                  # Game logic (track gen, timing calc)
-├── public/               # Car assets, screenshots
-├── styles/               # Tailwind and global CSS
-├── utils/                # XP/streak handling, car stats
-└── README.md
-```
 
 ---
 
