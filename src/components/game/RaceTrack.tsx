@@ -9,14 +9,26 @@ interface RaceTrackProps {
 }
 
 const Car = React.memo(({ angle }: { angle: number }) => (
-    <div className="absolute w-4 h-8 transition-transform duration-75 ease-linear" style={{ transform: `rotate(${angle + 90}deg)` }}>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0
-        border-l-[6px] border-l-transparent
-        border-b-[10px] border-b-primary
-        border-r-[6px] border-r-transparent">
-      </div>
-      <div className="absolute top-[8px] left-1/2 -translate-x-1/2 w-4 h-6 bg-primary rounded-sm shadow-md"></div>
-       <div className="absolute top-[10px] left-1/2 -translate-x-1/2 w-2 h-4 bg-black/30 rounded-t-sm"></div>
+    <div className="absolute w-8 h-12 transition-transform duration-75 ease-linear" style={{ transform: `rotate(${angle + 90}deg) scale(0.8)` }}>
+      {/* Base car SVG */}
+      <svg viewBox="0 0 100 200" className="w-full h-full" style={{filter: 'drop-shadow(2px 4px 6px black)'}}>
+        {/* Body */}
+        <path d="M20,10 L80,10 C90,10 100,20 100,30 L100,170 C100,180 90,190 80,190 L20,190 C10,190 0,180 0,170 L0,30 C0,20 10,10 20,10 Z" fill="hsl(var(--primary))" />
+        
+        {/* Windshield */}
+        <path d="M10,60 L90,60 L80,90 L20,90 Z" fill="rgba(0,0,0,0.5)" />
+        
+        {/* Hood lines */}
+        <line x1="30" y1="15" x2="40" y2="55" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+        <line x1="70" y1="15" x2="60" y2="55" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+        
+        {/* Headlights */}
+        <circle cx="20" cy="25" r="8" fill="yellow" stroke="rgba(0,0,0,0.3)" strokeWidth="2" />
+        <circle cx="80" cy="25" r="8" fill="yellow" stroke="rgba(0,0,0,0.3)" strokeWidth="2" />
+
+        {/* Spoiler */}
+        <path d="M5,180 L95,180 L100,200 L0,200 Z" fill="hsl(var(--accent))" stroke="black" strokeWidth="2"/>
+      </svg>
     </div>
 ));
 Car.displayName = 'Car';
@@ -93,7 +105,6 @@ export default function RaceTrack({ carPosition, carAngle }: RaceTrackProps) {
           left: `${carPosition.x}px`,
           top: `${carPosition.y}px`,
           transform: `translate(-50%, -50%)`,
-          filter: "url(#shadow)"
         }}
       >
         <Car angle={carAngle} />

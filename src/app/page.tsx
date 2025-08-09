@@ -1,18 +1,31 @@
 import GameController from '@/components/game/GameController';
 import DifficultyPanel from '@/components/game/DifficultyPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Key } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+
+const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+    <div className={cn(
+        "bg-gray-900/50 border border-gray-600 rounded-md w-12 h-12 flex items-center justify-center text-xl font-bold text-primary shadow-lg",
+        "transform transition-all duration-100 active:scale-90 active:bg-primary active:text-white",
+        className
+    )}>
+        {children}
+    </div>
+);
+
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8">
-      <header className="text-center">
-        <h1 className="text-5xl lg:text-7xl font-headline font-bold text-primary tracking-wider uppercase">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-card to-background">
+      <header className="text-center space-y-2">
+        <h1 className="text-5xl lg:text-7xl font-headline font-bold text-primary tracking-wider uppercase"
+          style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))' }}>
           Velocity Frontline
         </h1>
-        <p className="text-muted-foreground mt-2 font-body max-w-2xl">
-          A sleek, browser-based racing game. Use your arrow keys to steer, accelerate, and brake. See if you can set the fastest lap!
+        <p className="text-muted-foreground font-body max-w-2xl text-lg">
+          The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
         </p>
       </header>
       
@@ -22,42 +35,39 @@ export default function Home() {
         </div>
         <div className="lg:col-span-1 space-y-8 order-1 lg:order-2">
           <DifficultyPanel />
-          <Card className="bg-card/50">
+          <Card className="bg-card/80 backdrop-blur-sm border-border/50">
             <CardHeader>
-              <CardTitle>Controls</CardTitle>
-              <CardDescription>Use your keyboard to navigate the track.</CardDescription>
+                <div className="flex items-center gap-3">
+                    <Keyboard className="h-8 w-8 text-primary" />
+                    <div>
+                        <CardTitle>Controls</CardTitle>
+                        <CardDescription>Master your machine.</CardDescription>
+                    </div>
+                </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-background">
-                <span className="font-medium">Accelerate</span>
-                <Badge variant="secondary" className="flex items-center gap-2">
-                  <ArrowUp className="h-4 w-4" /> Up Arrow
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-background">
-                <span className="font-medium">Brake / Reverse</span>
-                 <Badge variant="secondary" className="flex items-center gap-2">
-                  <ArrowDown className="h-4 w-4" /> Down Arrow
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-background">
-                <span className="font-medium">Steer Left</span>
-                 <Badge variant="secondary" className="flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" /> Left Arrow
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-background">
-                <span className="font-medium">Steer Right</span>
-                 <Badge variant="secondary" className="flex items-center gap-2">
-                  <ArrowRight className="h-4 w-4" /> Right Arrow
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-background">
-                <span className="font-medium">Restart Race</span>
-                 <Badge variant="secondary" className="flex items-center gap-2">
-                  <Key className="h-4 w-4" /> R Key
-                </Badge>
-              </div>
+            <CardContent className="flex flex-col items-center space-y-2">
+                <div className="flex flex-col items-center space-y-1">
+                    <KeyDisplay><ArrowUp className="h-6 w-6" /></KeyDisplay>
+                    <span className="text-xs text-muted-foreground">Accelerate</span>
+                </div>
+                <div className="flex gap-2">
+                    <div className="flex flex-col items-center space-y-1">
+                        <KeyDisplay><ArrowLeft className="h-6 w-6" /></KeyDisplay>
+                        <span className="text-xs text-muted-foreground">Steer Left</span>
+                    </div>
+                    <div className="flex flex-col items-center space-y-1">
+                        <KeyDisplay><ArrowDown className="h-6 w-6" /></KeyDisplay>
+                        <span className="text-xs text-muted-foreground">Brake</span>
+                    </div>
+                    <div className="flex flex-col items-center space-y-1">
+                        <KeyDisplay><ArrowRight className="h-6 w-6" /></KeyDisplay>
+                        <span className="text-xs text-muted-foreground">Steer Right</span>
+                    </div>
+                </div>
+                 <div className="flex flex-col items-center space-y-1 pt-2">
+                    <KeyDisplay className="w-20">R</KeyDisplay>
+                    <span className="text-xs text-muted-foreground">Restart Race</span>
+                </div>
             </CardContent>
           </Card>
         </div>
