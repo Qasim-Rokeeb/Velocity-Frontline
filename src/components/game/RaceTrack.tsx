@@ -36,7 +36,7 @@ Car.displayName = 'Car';
 
 export default function RaceTrack({ carPosition, carAngle }: RaceTrackProps) {
   return (
-    <div className="w-full h-full bg-green-900/50 flex items-center justify-center overflow-hidden">
+    <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden">
       <svg width="100%" height="100%" viewBox="0 0 800 500">
         <defs>
           <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
