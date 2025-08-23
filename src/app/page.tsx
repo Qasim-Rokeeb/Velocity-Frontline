@@ -14,6 +14,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } 
 import MusicToggle from '@/components/MusicToggle';
 import { Separator } from '@/components/ui/separator';
 import SettingsPanel, { Keybindings } from '@/components/game/SettingsPanel';
+import { Difficulty } from '@/components/game/DifficultySelector';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -40,6 +41,7 @@ export default function Home() {
   });
   const [carColor, setCarColor] = useState('hsl(var(--primary))');
   const [playerName, setPlayerName] = useState('Player 1');
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
 
   return (
     <div className="flex">
@@ -161,6 +163,8 @@ export default function Home() {
                 onCarColorChange={setCarColor}
                 playerName={playerName}
                 onPlayerNameChange={setPlayerName}
+                difficulty={difficulty}
+                onDifficultyChange={setDifficulty}
               />
           </div>
         </main>

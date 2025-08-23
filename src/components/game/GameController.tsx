@@ -21,6 +21,7 @@ import RacingLights from './RacingLights';
 import { motion, AnimatePresence } from 'framer-motion';
 import LapHistory from './LapHistory';
 import { Keybindings } from './SettingsPanel';
+import { Difficulty } from './DifficultySelector';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -54,6 +55,8 @@ interface GameControllerProps {
     onCarColorChange: (color: string) => void;
     playerName: string;
     onPlayerNameChange: (name: string) => void;
+    difficulty: Difficulty;
+    onDifficultyChange: (difficulty: Difficulty) => void;
 }
 
 
@@ -67,7 +70,9 @@ export default function GameController({
     carColor,
     onCarColorChange,
     playerName,
-    onPlayerNameChange
+    onPlayerNameChange,
+    difficulty,
+    onDifficultyChange
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -185,6 +190,16 @@ export default function GameController({
     setSparks(prev => prev.filter(s => s.id !== id));
   }, []);
 
+  const handleCollision = useCallback(() => {
+    let damage = 15; // Medium difficulty
+    if (difficulty === 'easy') {
+        damage = 10;
+    } else if (difficulty === 'hard') {
+        damage = 25;
+    }
+    setCarHealth(h => Math.max(0, h - damage));
+  }, [difficulty]);
+
   const gameLoop = useCallback((timestamp: number) => {
     if (lastTimestampRef.current === undefined) {
       lastTimestampRef.current = timestamp;
@@ -288,7 +303,7 @@ export default function GameController({
       if (isOutOfBounds || isInfield) {
         speed = -speed * 0.5; // Bounce back
         setCollisions(c => c + 1);
-        setCarHealth(h => Math.max(0, h - 15));
+        handleCollision();
         
         const newSparkId = sparkIdCounter.current++;
         setSparks(s => [...s, { id: newSparkId, x, y }]);
@@ -321,7 +336,7 @@ export default function GameController({
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings]);
+  }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings]);
 
 
   useEffect(() => {
@@ -397,6 +412,8 @@ export default function GameController({
                         onCarColorChange={onCarColorChange}
                         playerName={playerName}
                         onPlayerNameChange={onPlayerNameChange}
+                        difficulty={difficulty}
+                        onDifficultyChange={onDifficultyChange}
                     />
                     <Button onClick={startGame} size="lg" className="animate-pulse-strong" disabled={!selectedCar || !playerName}>
                         <Play className="mr-2 h-5 w-5" /> Start Race

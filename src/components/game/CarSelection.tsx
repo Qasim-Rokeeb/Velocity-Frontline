@@ -17,6 +17,8 @@ import { Car, cars, ViperCar, ChallengerCar, PorscheCar, LamboCar } from '@/comp
 import ColorPicker from './ColorPicker';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import DifficultySelector, { Difficulty } from './DifficultySelector';
+import { Separator } from '../ui/separator';
 
 
 interface CarSelectionProps {
@@ -26,9 +28,20 @@ interface CarSelectionProps {
   onCarColorChange: (color: string) => void;
   playerName: string;
   onPlayerNameChange: (name: string) => void;
+  difficulty: Difficulty;
+  onDifficultyChange: (difficulty: Difficulty) => void;
 }
 
-export default function CarSelection({ onSelectCar, selectedCar, carColor, onCarColorChange, playerName, onPlayerNameChange }: CarSelectionProps) {
+export default function CarSelection({ 
+    onSelectCar, 
+    selectedCar, 
+    carColor, 
+    onCarColorChange, 
+    playerName, 
+    onPlayerNameChange,
+    difficulty,
+    onDifficultyChange
+}: CarSelectionProps) {
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center space-y-6">
       <div>
@@ -36,18 +49,21 @@ export default function CarSelection({ onSelectCar, selectedCar, carColor, onCar
           <p className="text-center text-muted-foreground">Enter your name, choose your ride, and pick a color.</p>
       </div>
 
-      <div className="w-full max-w-sm space-y-2">
-        <Label htmlFor="nickname" className="flex items-center gap-2 text-muted-foreground">
-            <User className="h-4 w-4" />
-            Nickname
-        </Label>
-        <Input 
-            id="nickname" 
-            placeholder="Enter your nickname" 
-            value={playerName}
-            onChange={(e) => onPlayerNameChange(e.target.value)}
-            className="text-center text-lg"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-sm items-center">
+        <div className="space-y-2">
+            <Label htmlFor="nickname" className="flex items-center gap-2 text-muted-foreground">
+                <User className="h-4 w-4" />
+                Nickname
+            </Label>
+            <Input 
+                id="nickname" 
+                placeholder="Enter your nickname" 
+                value={playerName}
+                onChange={(e) => onPlayerNameChange(e.target.value)}
+                className="text-center text-lg"
+            />
+        </div>
+        <DifficultySelector selectedDifficulty={difficulty} onDifficultyChange={onDifficultyChange} />
       </div>
 
       <Carousel
