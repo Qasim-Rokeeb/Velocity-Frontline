@@ -18,6 +18,8 @@ interface SettingsPanelProps {
     onBrakeStrengthChange: (value: number) => void;
     autoAccelerate: boolean;
     onAutoAccelerateChange: (value: boolean) => void;
+    steeringAssist: boolean;
+    onSteeringAssistChange: (value: boolean) => void;
 }
 
 export default function SettingsPanel({ 
@@ -25,6 +27,7 @@ export default function SettingsPanel({
     accelerationSensitivity, onAccelerationSensitivityChange,
     brakeStrength, onBrakeStrengthChange,
     autoAccelerate, onAutoAccelerateChange,
+    steeringAssist, onSteeringAssistChange,
 }: SettingsPanelProps) {
   return (
     <Card className="bg-card/50">
@@ -38,6 +41,23 @@ export default function SettingsPanel({
             </div>
         </CardHeader>
         <CardContent className="space-y-6">
+             <div className="flex items-center justify-between">
+                <Tooltip>
+                    <TooltipTrigger className="w-full text-left">
+                        <Label htmlFor="steering-assist">
+                            Steering Assist
+                        </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>When enabled, your car will be gently guided along the track.</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Switch
+                    id="steering-assist"
+                    checked={steeringAssist}
+                    onCheckedChange={onSteeringAssistChange}
+                />
+            </div>
             <div className="flex items-center justify-between">
                 <Tooltip>
                     <TooltipTrigger className="w-full text-left">

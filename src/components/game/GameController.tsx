@@ -47,10 +47,11 @@ interface GameControllerProps {
     accelerationSensitivity: number;
     brakeStrength: number;
     autoAccelerate: boolean;
+    steeringAssist: boolean;
 }
 
 
-export default function GameController({ steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate }: GameControllerProps) {
+export default function GameController({ steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
   const [lapTime, setLapTime] = useState(0);
@@ -194,6 +195,48 @@ export default function GameController({ steeringSensitivity, accelerationSensit
           if (keys.current.arrowright || keys.current.d) angle += turnSpeed * flip;
       }
       
+      // --- Steering Assist ---
+      if (steeringAssist && speed > 0.5) {
+        const dx = x - TRACK_CENTER.x;
+        const dy = y - TRACK_CENTER.y;
+        
+        // Calculate the tangent angle to the ellipse at the car's position
+        // The tangent to an ellipse (x^2/a^2 + y^2/b^2 = 1) at (x0, y0) has slope - (b^2 * x0) / (a^2 * y0)
+        // The track is an average of the inner and outer ellipses
+        const avg_rx = (TRACK_OUTER.rx + TRACK_INNER.rx) / 2;
+        const avg_ry = (TRACK_OUTER.ry + TRACK_INNER.ry) / 2;
+
+        const tangentSlope = -(avg_ry ** 2 * dx) / (avg_rx ** 2 * dy);
+        let targetAngle = Math.atan(tangentSlope) * (180 / Math.PI);
+        
+        // Adjust angle based on quadrant, because atan has a limited range
+        if (dy > 0) {
+            targetAngle += 180;
+        }
+        if (speed < 0) { // If reversing, flip the angle
+             targetAngle += 180;
+        }
+
+        // Determine direction (clockwise or counter-clockwise)
+        const isCounterClockwise = speed > 0;
+        if (!isCounterClockwise) {
+            targetAngle += 180; // Go the other way
+        }
+        
+        // Normalize angles to be within -180 to 180
+        const normalizeAngle = (a:number) => (a + 180) % 360 - 180;
+        const currentNormalizedAngle = normalizeAngle(angle);
+        const targetNormalizedAngle = normalizeAngle(targetAngle);
+
+        let angleDiff = targetNormalizedAngle - currentNormalizedAngle;
+        if (angleDiff > 180) angleDiff -= 360;
+        if (angleDiff < -180) angleDiff += 360;
+
+        // Gently nudge the car's angle towards the target angle
+        const assistStrength = 0.03; // Lower value = gentler assist
+        angle += angleDiff * assistStrength * deltaTime;
+      }
+
       const rad = angle * (Math.PI / 180);
       x += Math.cos(rad) * speed * deltaTime;
       y += Math.sin(rad) * speed * deltaTime;
@@ -246,7 +289,7 @@ export default function GameController({ steeringSensitivity, accelerationSensit
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate]);
+  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist]);
 
 
   useEffect(() => {
