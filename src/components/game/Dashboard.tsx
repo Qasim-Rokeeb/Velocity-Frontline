@@ -37,7 +37,7 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
   return (
     <Card className="bg-card/50">
       <CardContent className="p-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <StatCard icon={<Gauge className="h-5 w-5" />} title="Speed" value={speed.toFixed(0)} unit="km/h" />
           <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
           <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
