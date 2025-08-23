@@ -237,11 +237,11 @@ export default function GameController() {
          <AlertDialog open={gameState === 'finished'}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2 text-3xl font-headline">
-                <Trophy className="w-8 h-8 text-yellow-400" />
+              <AlertDialogTitle className="flex items-center justify-center gap-2 text-3xl font-headline">
+                <Flag className="w-8 h-8 text-primary animate-pulse-strong" />
                 Race Finished!
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-lg">
+              <AlertDialogDescription className="text-lg text-center">
                 Congratulations! You completed all {TOTAL_LAPS} laps.
                 <div className="font-mono text-xl text-foreground my-4">
                     Best Lap: {formatTime(bestLap)}
