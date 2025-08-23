@@ -108,7 +108,12 @@ export default {
         'glow': {
             '0%, 100%': { opacity: '1' },
             '50%': { opacity: '0.7' },
-        }
+        },
+        'progress-gradient': {
+            '0%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
+            '100%': { backgroundPosition: '0% 50%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -116,6 +121,7 @@ export default {
         'pulse-strong': 'pulse-strong 2s infinite',
         'fade-in-down': 'fade-in-down 0.5s ease-out forwards',
         'glow': 'glow 1.5s ease-in-out infinite',
+        'progress-gradient': 'progress-gradient 3s ease infinite',
       },
     },
   },
