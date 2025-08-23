@@ -26,6 +26,7 @@ interface RaceTrackProps {
   sparks: Spark[];
   onSparkAnimationComplete: (id: number) => void;
   touchControlsRef: React.MutableRefObject<{ [key: string]: boolean }>;
+  steeringWheelAngleRef: React.MutableRefObject<number>;
 }
 
 const CarSprite = ({ selectedCar, angle, speed }: { selectedCar: Car | null, angle: number, speed: number }) => {
@@ -41,11 +42,11 @@ const CarSprite = ({ selectedCar, angle, speed }: { selectedCar: Car | null, ang
 }
 
 
-export default function RaceTrack({ carState, selectedCar, sparks, onSparkAnimationComplete, touchControlsRef }: RaceTrackProps) {
+export default function RaceTrack({ carState, selectedCar, sparks, onSparkAnimationComplete, touchControlsRef, steeringWheelAngleRef }: RaceTrackProps) {
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden">
         <MiniMap carPosition={carState} />
-        <TouchControls keysRef={touchControlsRef} />
+        <TouchControls keysRef={touchControlsRef} steeringWheelAngleRef={steeringWheelAngleRef} />
       <svg width="100%" height="100%" viewBox="0 0 800 500">
         <defs>
           <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">

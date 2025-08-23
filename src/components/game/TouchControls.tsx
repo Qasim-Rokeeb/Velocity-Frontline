@@ -2,12 +2,14 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import SteeringWheel from './SteeringWheel';
 
 interface TouchControlsProps {
   keysRef: React.MutableRefObject<{ [key: string]: boolean }>;
+  steeringWheelAngleRef: React.MutableRefObject<number>;
 }
 
 const TouchButton = ({ onTouchStart, onTouchEnd, className, children }: {
@@ -30,7 +32,7 @@ const TouchButton = ({ onTouchStart, onTouchEnd, className, children }: {
   </div>
 );
 
-export default function TouchControls({ keysRef }: TouchControlsProps) {
+export default function TouchControls({ keysRef, steeringWheelAngleRef }: TouchControlsProps) {
   const isMobile = useIsMobile();
   
   if (!isMobile) {
@@ -44,19 +46,8 @@ export default function TouchControls({ keysRef }: TouchControlsProps) {
   return (
     <div className="absolute inset-0 z-20 pointer-events-none md:hidden">
       {/* Steering Controls */}
-      <div className="absolute bottom-6 left-6 flex gap-4 pointer-events-auto">
-        <TouchButton
-          onTouchStart={() => handleTouch('arrowleft', true)}
-          onTouchEnd={() => handleTouch('arrowleft', false)}
-        >
-          <ArrowLeft className="w-8 h-8" />
-        </TouchButton>
-        <TouchButton
-          onTouchStart={() => handleTouch('arrowright', true)}
-          onTouchEnd={() => handleTouch('arrowright', false)}
-        >
-          <ArrowRight className="w-8 h-8" />
-        </TouchButton>
+      <div className="absolute bottom-6 left-6 pointer-events-auto">
+        <SteeringWheel onAngleChange={(angle) => steeringWheelAngleRef.current = angle} />
       </div>
 
       {/* Gas and Brake Controls */}

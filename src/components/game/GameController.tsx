@@ -80,6 +80,7 @@ export default function GameController({
   const lastTimestampRef = useRef<number>();
   const passedCheckpoint = useRef(false);
   const sparkIdCounter = useRef(0);
+  const steeringWheelAngleRef = useRef(0);
 
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
@@ -203,6 +204,11 @@ export default function GameController({
           const flip = speed > 0 ? 1 : -1;
           if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * flip;
           if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * flip;
+          
+          // Steering wheel input
+          if (steeringWheelAngleRef.current !== 0) {
+              angle += (steeringWheelAngleRef.current / 90) * turnSpeed * flip; // Max 90 degrees turn on wheel
+          }
       }
       
       // --- Steering Assist ---
@@ -437,6 +443,7 @@ export default function GameController({
             sparks={sparks}
             onSparkAnimationComplete={handleRemoveSpark}
             touchControlsRef={keys}
+            steeringWheelAngleRef={steeringWheelAngleRef}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
