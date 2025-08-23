@@ -10,6 +10,7 @@ import Logo from '@/components/game/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import MusicToggle from '@/components/MusicToggle';
+import { Separator } from '@/components/ui/separator';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -39,29 +40,64 @@ export default function Home() {
                       </div>
                   </div>
               </CardHeader>
-              <CardContent className="flex flex-col items-center space-y-2">
-                  <div className="flex flex-col items-center space-y-1">
-                      <KeyDisplay><ArrowUp className="h-6 w-6" /></KeyDisplay>
-                      <span className="text-xs text-muted-foreground">Accelerate</span>
-                  </div>
-                  <div className="flex gap-2">
-                      <div className="flex flex-col items-center space-y-1">
-                          <KeyDisplay><ArrowLeft className="h-6 w-6" /></KeyDisplay>
-                          <span className="text-xs text-muted-foreground">Steer Left</span>
-                      </div>
-                      <div className="flex flex-col items-center space-y-1">
-                          <KeyDisplay><ArrowDown className="h-6 w-6" /></KeyDisplay>
-                          <span className="text-xs text-muted-foreground">Brake</span>
-                      </div>
-                      <div className="flex flex-col items-center space-y-1">
-                          <KeyDisplay><ArrowRight className="h-6 w-6" /></KeyDisplay>
-                          <span className="text-xs text-muted-foreground">Steer Right</span>
-                      </div>
-                  </div>
-                   <div className="flex flex-col items-center space-y-1 pt-2">
-                      <KeyDisplay className="w-20">R</KeyDisplay>
-                      <span className="text-xs text-muted-foreground">Restart Race</span>
-                  </div>
+              <CardContent className="flex flex-col items-center space-y-4">
+                <div className="flex gap-4">
+                    {/* WASD Controls */}
+                    <div className="flex flex-col items-center space-y-2">
+                        <div className="flex flex-col items-center space-y-1">
+                            <KeyDisplay>W</KeyDisplay>
+                            <span className="text-xs text-muted-foreground">Accelerate</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <div className="flex flex-col items-center space-y-1">
+                                <KeyDisplay>A</KeyDisplay>
+                                <span className="text-xs text-muted-foreground">Steer L</span>
+                            </div>
+                            <div className="flex flex-col items-center space-y-1">
+                                <KeyDisplay>S</KeyDisplay>
+                                <span className="text-xs text-muted-foreground">Brake</span>
+                            </div>
+                            <div className="flex flex-col items-center space-y-1">
+                                <KeyDisplay>D</KeyDisplay>
+                                <span className="text-xs text-muted-foreground">Steer R</span>
+                            </div>
+                        </div>
+                    </div>
+                     {/* Arrow Key Controls */}
+                    <div className="flex flex-col items-center space-y-2">
+                        <div className="flex flex-col items-center space-y-1">
+                            <KeyDisplay><ArrowUp className="h-6 w-6" /></KeyDisplay>
+                             <span className="text-xs text-muted-foreground">Accelerate</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <div className="flex flex-col items-center space-y-1">
+                                <KeyDisplay><ArrowLeft className="h-6 w-6" /></KeyDisplay>
+                                <span className="text-xs text-muted-foreground">Steer L</span>
+                            </div>
+                            <div className="flex flex-col items-center space-y-1">
+                                <KeyDisplay><ArrowDown className="h-6 w-6" /></KeyDisplay>
+                                <span className="text-xs text-muted-foreground">Brake</span>
+                            </div>
+                            <div className="flex flex-col items-center space-y-1">
+                                <KeyDisplay><ArrowRight className="h-6 w-6" /></KeyDisplay>
+                                <span className="text-xs text-muted-foreground">Steer R</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <Separator />
+                
+                <div className="flex gap-4">
+                    <div className="flex flex-col items-center space-y-1">
+                        <KeyDisplay className="w-20">P</KeyDisplay>
+                        <span className="text-xs text-muted-foreground">Pause / Resume</span>
+                    </div>
+                     <div className="flex flex-col items-center space-y-1">
+                        <KeyDisplay className="w-20">R</KeyDisplay>
+                        <span className="text-xs text-muted-foreground">Restart Race</span>
+                    </div>
+                </div>
               </CardContent>
             </Card>
         </SidebarContent>
