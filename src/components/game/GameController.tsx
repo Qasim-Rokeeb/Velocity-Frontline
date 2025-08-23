@@ -224,7 +224,7 @@ export default function GameController() {
               </>
             )}
             {gameState === 'countdown' && (
-              <div className="text-9xl font-headline font-bold text-primary animate-ping">
+              <div key={countdown} className="text-9xl font-headline font-bold text-primary animate-pulse-strong">
                 {countdown > 0 ? countdown : <Flag />}
               </div>
             )}
