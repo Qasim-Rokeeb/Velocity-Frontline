@@ -199,16 +199,16 @@ export default function GameController() {
       const maxSpeed = 5;
       const maxReverseSpeed = -2;
 
-      if (keys.current.ArrowUp || keys.current.w) speed = Math.min(maxSpeed, speed + acceleration);
-      if (keys.current.ArrowDown || keys.current.s) speed = Math.max(maxReverseSpeed, speed - acceleration);
+      if (keys.current.arrowup || keys.current.w) speed = Math.min(maxSpeed, speed + acceleration);
+      if (keys.current.arrowdown || keys.current.s) speed = Math.max(maxReverseSpeed, speed - acceleration);
       
       speed *= friction;
       if (Math.abs(speed) < 0.01) speed = 0;
 
       if (speed !== 0) {
           const flip = speed > 0 ? 1 : -1;
-          if (keys.current.ArrowLeft || keys.current.a) angle -= turnSpeed * flip;
-          if (keys.current.ArrowRight || keys.current.d) angle += turnSpeed * flip;
+          if (keys.current.arrowleft || keys.current.a) angle -= turnSpeed * flip;
+          if (keys.current.arrowright || keys.current.d) angle += turnSpeed * flip;
       }
       
       const rad = angle * (Math.PI / 180);
@@ -395,6 +395,7 @@ export default function GameController() {
             selectedCar={selectedCar} 
             sparks={sparks}
             onSparkAnimationComplete={handleRemoveSpark}
+            touchControlsRef={keys}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
