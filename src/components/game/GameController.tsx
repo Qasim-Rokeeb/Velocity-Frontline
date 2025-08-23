@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RaceTrack from './RaceTrack';
 import Dashboard from './Dashboard';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCw, Flag, Trophy, CarIcon, Pause, PlayCircle } from 'lucide-react';
+import { Play, RotateCw, Flag, Trophy, CarIcon, Pause, PlayCircle, LocateFixed } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,6 +77,11 @@ export default function GameController({ steeringSensitivity, accelerationSensit
     const milliseconds = (time % 1000).toString().padStart(3, '0');
     return `${minutes}:${seconds}.${milliseconds}`;
   };
+
+  const resetCarPosition = useCallback(() => {
+    setCarState(INITIAL_CAR_STATE);
+    passedCheckpoint.current = false;
+  }, []);
 
   const resetGame = useCallback(() => {
     setGameState('idle');
@@ -395,6 +400,10 @@ export default function GameController({ steeringSensitivity, accelerationSensit
             <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>
                 {gameState === 'paused' ? <PlayCircle className="mr-2 h-5 w-5"/> : <Pause className="mr-2 h-5 w-5"/>}
                 {gameState === 'paused' ? 'Resume' : 'Pause'}
+            </Button>
+             <Button onClick={resetCarPosition} variant="outline" className="h-full" disabled={gameState === 'idle' || gameState === 'countdown'}>
+                <LocateFixed className="mr-2 h-5 w-5"/>
+                Reset Car
             </Button>
             <Button onClick={resetGame} variant="outline" className="h-full">
                 <RotateCw className="mr-2 h-5 w-5"/>
