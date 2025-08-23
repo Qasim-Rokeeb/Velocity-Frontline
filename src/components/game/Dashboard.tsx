@@ -27,7 +27,7 @@ const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: 
       <span className="text-sm font-medium">{title}</span>
     </div>
     <div className="mt-1">
-      <span className="text-3xl font-bold font-headline text-primary tracking-tighter">{value}</span>
+      <span className="text-3xl font-bold font-headline text-primary tracking-tighter transition-all duration-200">{value}</span>
       {unit && <span className="text-lg text-muted-foreground ml-1">{unit}</span>}
     </div>
   </div>
