@@ -1,3 +1,4 @@
+
 import GameController from '@/components/game/GameController';
 import DifficultyPanel from '@/components/game/DifficultyPanel';
 import Leaderboard from '@/components/game/Leaderboard';
@@ -7,6 +8,7 @@ import { cn } from '@/lib/utils';
 import Logo from '@/components/game/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import MusicToggle from '@/components/MusicToggle';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -73,7 +75,10 @@ export default function Home() {
             <p className="text-muted-foreground font-body max-w-2xl text-lg hidden md:block">
               The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
             </p>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <MusicToggle />
+              <ThemeToggle />
+            </div>
           </header>
           
           <div className="w-full max-w-7xl">
