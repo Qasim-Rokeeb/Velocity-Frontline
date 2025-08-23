@@ -253,13 +253,19 @@ export default function GameController() {
         </AlertDialog>
         <RaceTrack carPosition={carState} carAngle={carState.angle} />
       </div>
-      <Dashboard
-        speed={Math.abs(carState.speed * 20)}
-        lapTime={lapTime}
-        currentLap={Math.min(currentLap, TOTAL_LAPS)}
-        bestLap={bestLap}
-        collisions={collisions}
-      />
+      <div className="flex items-start gap-4">
+        <Dashboard
+            speed={Math.abs(carState.speed * 20)}
+            lapTime={lapTime}
+            currentLap={Math.min(currentLap, TOTAL_LAPS)}
+            bestLap={bestLap}
+            collisions={collisions}
+        />
+        <Button onClick={resetGame} variant="outline" className="h-full">
+            <RotateCw className="mr-2 h-5 w-5"/>
+            Restart
+        </Button>
+      </div>
     </div>
   );
 }

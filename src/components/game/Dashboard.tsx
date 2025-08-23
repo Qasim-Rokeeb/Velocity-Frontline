@@ -35,7 +35,7 @@ const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: 
 
 export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions }: DashboardProps) {
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
+    <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <StatCard icon={<Gauge className="h-5 w-5" />} title="Speed" value={speed.toFixed(0)} unit="km/h" />
