@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import LapHistory from './LapHistory';
 import { Keybindings } from './SettingsPanel';
 import { Difficulty } from './DifficultySelector';
+import { Weather } from './WeatherToggle';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -61,6 +62,7 @@ interface GameControllerProps {
     onDifficultyChange: (difficulty: Difficulty) => void;
     maxSpeed: number;
     tireGrip: number;
+    weather: Weather;
 }
 
 
@@ -79,6 +81,7 @@ export default function GameController({
     onDifficultyChange,
     maxSpeed,
     tireGrip,
+    weather
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -372,7 +375,6 @@ export default function GameController({
       return { x, y, speed, angle, isSkidding };
     });
 
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
   }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip]);
 
 
@@ -521,6 +523,7 @@ export default function GameController({
             onSparkAnimationComplete={handleRemoveSpark}
             touchControlsRef={keys}
             joystickDataRef={joystickDataRef}
+            weather={weather}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">

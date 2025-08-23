@@ -16,6 +16,7 @@ import MusicToggle from '@/components/MusicToggle';
 import { Separator } from '@/components/ui/separator';
 import SettingsPanel, { Keybindings } from '@/components/game/SettingsPanel';
 import { Difficulty } from '@/components/game/DifficultySelector';
+import WeatherToggle, { Weather } from '@/components/game/WeatherToggle';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -45,6 +46,8 @@ export default function Home() {
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [maxSpeed, setMaxSpeed] = useState(240);
   const [tireGrip, setTireGrip] = useState(0.5);
+  const [weather, setWeather] = useState<Weather>('sunny');
+
 
   return (
     <div className="flex">
@@ -153,6 +156,7 @@ export default function Home() {
               The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
             </p>
             <div className="flex items-center gap-2">
+              <WeatherToggle weather={weather} onWeatherChange={setWeather} />
               <MusicToggle />
               <ThemeToggle />
             </div>
@@ -174,6 +178,7 @@ export default function Home() {
                 onDifficultyChange={setDifficulty}
                 maxSpeed={maxSpeed}
                 tireGrip={tireGrip}
+                weather={weather}
               />
           </div>
         </main>

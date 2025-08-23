@@ -119,6 +119,10 @@ export default {
           '0%, 100%': { transform: 'translateX(0)' },
           '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
           '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' },
+        },
+        'fall': {
+          '0%': { transform: 'translateY(-100px) scale(1)' },
+          '100%': { transform: 'translateY(100vh) scale(0.5)' },
         }
       },
       animation: {
@@ -129,6 +133,7 @@ export default {
         'glow': 'glow 1.5s ease-in-out infinite',
         'progress-gradient': 'progress-gradient 3s ease infinite',
         'shake': 'shake 0.3s cubic-bezier(.36,.07,.19,.97) both',
+        'fall': 'fall linear infinite',
       },
     },
   },
