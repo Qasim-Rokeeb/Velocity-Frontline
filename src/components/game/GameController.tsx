@@ -24,6 +24,7 @@ import LapHistory from './LapHistory';
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
 type CarState = { x: number; y: number; speed: number; angle: number; };
+type Spark = { id: number; x: number; y: number };
 
 const INITIAL_CAR_STATE: CarState = {
   x: 525,
@@ -53,12 +54,14 @@ export default function GameController() {
   const [selectedCar, setSelectedCar] = useState<Car | null>(carData[0]);
   const [lapProgress, setLapProgress] = useState(0);
   const [carHealth, setCarHealth] = useState(100);
+  const [sparks, setSparks] = useState<Spark[]>([]);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
   const lapTimerRef = useRef<number>();
   const lastTimestampRef = useRef<number>();
   const passedCheckpoint = useRef(false);
+  const sparkIdCounter = useRef(0);
 
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
@@ -77,6 +80,7 @@ export default function GameController() {
     setLapProgress(0);
     setLapHistory([]);
     setCarHealth(100);
+    setSparks([]);
     // Keep best lap across sessions until page reload
     // setBestLap(Infinity) 
     passedCheckpoint.current = false;
@@ -93,6 +97,7 @@ export default function GameController() {
     setLapProgress(0);
     setLapHistory([]);
     setCarHealth(100);
+    setSparks([]);
     setGameState('countdown');
     setCountdown(3);
   };
@@ -173,6 +178,10 @@ export default function GameController() {
 
   }, []);
 
+  const handleRemoveSpark = useCallback((id: number) => {
+    setSparks(prev => prev.filter(s => s.id !== id));
+  }, []);
+
   const gameLoop = useCallback((timestamp: number) => {
     if (lastTimestampRef.current === undefined) {
       lastTimestampRef.current = timestamp;
@@ -218,6 +227,10 @@ export default function GameController() {
         speed = -speed * 0.5; // Bounce back
         setCollisions(c => c + 1);
         setCarHealth(h => Math.max(0, h - 15));
+        
+        // Trigger sparks
+        const newSparkId = sparkIdCounter.current++;
+        setSparks(s => [...s, { id: newSparkId, x, y }]);
       }
 
       // --- Lap Progress ---
@@ -377,7 +390,13 @@ export default function GameController() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <RaceTrack carPosition={carState} carAngle={carState.angle} selectedCar={selectedCar} />
+        <RaceTrack 
+            carPosition={carState} 
+            carAngle={carState.angle} 
+            selectedCar={selectedCar} 
+            sparks={sparks}
+            onSparkAnimationComplete={handleRemoveSpark}
+        />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
         <Dashboard

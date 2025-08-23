@@ -4,11 +4,20 @@
 import React from 'react';
 import { Car, ViperCar, ChallengerCar, PorscheCar, LamboCar } from '@/components/game/CarSprites';
 import MiniMap from './MiniMap';
+import Sparks from './Sparks';
+
+interface Spark {
+    id: number;
+    x: number;
+    y: number;
+}
 
 interface RaceTrackProps {
   carPosition: { x: number; y: number };
   carAngle: number;
   selectedCar: Car | null;
+  sparks: Spark[];
+  onSparkAnimationComplete: (id: number) => void;
 }
 
 const CarSprite = ({ selectedCar, angle }: { selectedCar: Car | null, angle: number }) => {
@@ -24,7 +33,7 @@ const CarSprite = ({ selectedCar, angle }: { selectedCar: Car | null, angle: num
 }
 
 
-export default function RaceTrack({ carPosition, carAngle, selectedCar }: RaceTrackProps) {
+export default function RaceTrack({ carPosition, carAngle, selectedCar, sparks, onSparkAnimationComplete }: RaceTrackProps) {
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden">
         <MiniMap carPosition={carPosition} />
@@ -100,6 +109,15 @@ export default function RaceTrack({ carPosition, carAngle, selectedCar }: RaceTr
       >
         <CarSprite selectedCar={selectedCar} angle={carAngle} />
       </div>
+
+       {sparks.map(spark => (
+        <Sparks
+          key={spark.id}
+          x={spark.x}
+          y={spark.y}
+          onAnimationComplete={() => onSparkAnimationComplete(spark.id)}
+        />
+      ))}
     </div>
   );
 }
