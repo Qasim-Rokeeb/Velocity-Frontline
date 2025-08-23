@@ -41,7 +41,7 @@ const TRACK_OUTER = { rx: 350, ry: 200 };
 const TRACK_INNER = { rx: 250, ry: 100 };
 const FINISH_LINE = { x: 525, y_start: 150, y_end: 350 };
 const TOTAL_LAPS = 3;
-const MAX_SPEED_KMH = 240;
+const MAX_INTERNAL_SPEED = 5;
 
 
 interface GameControllerProps {
@@ -57,6 +57,7 @@ interface GameControllerProps {
     onPlayerNameChange: (name: string) => void;
     difficulty: Difficulty;
     onDifficultyChange: (difficulty: Difficulty) => void;
+    maxSpeed: number;
 }
 
 
@@ -72,7 +73,8 @@ export default function GameController({
     playerName,
     onPlayerNameChange,
     difficulty,
-    onDifficultyChange
+    onDifficultyChange,
+    maxSpeed,
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -213,7 +215,7 @@ export default function GameController({
       // --- Controls ---
       const turnSpeed = steeringSensitivity;
       const friction = 0.97;
-      const maxSpeed = 5;
+      const maxInternalSpeed = (maxSpeed / 240) * MAX_INTERNAL_SPEED;
       const maxReverseSpeed = -2;
 
       const { accelerate, brake, left, right } = keybindings;
@@ -225,13 +227,13 @@ export default function GameController({
         const forwardComponent = Math.cos(joystickAngleRad); // -1 to 1, where 1 is up
         if (forwardComponent > 0) { // Moving joystick forward
           const acceleration = accelerationSensitivity * forwardComponent * (joystick.distance / 50);
-          speed = Math.min(maxSpeed, speed + acceleration);
+          speed = Math.min(maxInternalSpeed, speed + acceleration);
         } else { // Moving joystick backward
           const braking = brakeStrength * -forwardComponent * (joystick.distance / 50);
           speed = Math.max(maxReverseSpeed, speed - braking);
         }
       } else { // Keyboard controls
-        if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
+        if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) speed = Math.min(maxInternalSpeed, speed + accelerationSensitivity);
         if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
       }
       
@@ -336,7 +338,7 @@ export default function GameController({
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings]);
+  }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed]);
 
 
   useEffect(() => {
@@ -488,8 +490,8 @@ export default function GameController({
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
         <Dashboard
-            speed={Math.abs(carState.speed * (MAX_SPEED_KMH / 5))}
-            maxSpeed={MAX_SPEED_KMH}
+            speed={Math.abs(carState.speed * (maxSpeed / MAX_INTERNAL_SPEED))}
+            maxSpeed={maxSpeed}
             lapTime={lapTime}
             currentLap={Math.min(currentLap, TOTAL_LAPS)}
             bestLap={bestLap}

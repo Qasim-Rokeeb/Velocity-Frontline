@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Settings, Gamepad2 } from "lucide-react";
+import { Settings, Gamepad2, Gauge } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Switch } from "../ui/switch";
 import { Separator } from "../ui/separator";
@@ -28,6 +28,8 @@ interface SettingsPanelProps {
     onSteeringAssistChange: (value: boolean) => void;
     keybindings: Keybindings;
     onKeybindingsChange: (keybindings: Keybindings) => void;
+    maxSpeed: number;
+    onMaxSpeedChange: (value: number) => void;
 }
 
 const KeybindingButton = ({ keyName, onSetKey, isBinding, action }: { keyName: string; onSetKey: () => void; isBinding: boolean, action: KeyAction }) => {
@@ -55,6 +57,7 @@ export default function SettingsPanel({
     autoAccelerate, onAutoAccelerateChange,
     steeringAssist, onSteeringAssistChange,
     keybindings, onKeybindingsChange,
+    maxSpeed, onMaxSpeedChange
 }: SettingsPanelProps) {
   const [bindingAction, setBindingAction] = useState<KeyAction | null>(null);
 
@@ -126,6 +129,27 @@ export default function SettingsPanel({
                     id="auto-accelerate"
                     checked={autoAccelerate}
                     onCheckedChange={onAutoAccelerateChange}
+                />
+            </div>
+            <div className="space-y-2">
+                <Tooltip>
+                    <TooltipTrigger className="w-full">
+                        <Label htmlFor="max-speed" className="flex justify-between items-center">
+                            <span>Max Speed (km/h)</span>
+                            <span className="text-xs text-muted-foreground">{maxSpeed.toFixed(0)}</span>
+                        </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Adjust your car's top speed. Higher is faster.</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Slider
+                    id="max-speed"
+                    min={120}
+                    max={300}
+                    step={10}
+                    value={[maxSpeed]}
+                    onValueChange={(value) => onMaxSpeedChange(value[0])}
                 />
             </div>
             <div className="space-y-2">

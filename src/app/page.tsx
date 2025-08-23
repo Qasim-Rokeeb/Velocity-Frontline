@@ -42,6 +42,7 @@ export default function Home() {
   const [carColor, setCarColor] = useState('hsl(var(--primary))');
   const [playerName, setPlayerName] = useState('Player 1');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [maxSpeed, setMaxSpeed] = useState(240);
 
   return (
     <div className="flex">
@@ -60,6 +61,8 @@ export default function Home() {
                 onSteeringAssistChange={setSteeringAssist}
                 keybindings={keybindings}
                 onKeybindingsChange={setKeybindings}
+                maxSpeed={maxSpeed}
+                onMaxSpeedChange={setMaxSpeed}
             />
             <DifficultyPanel />
             <Leaderboard playerName={playerName} />
@@ -165,6 +168,7 @@ export default function Home() {
                 onPlayerNameChange={setPlayerName}
                 difficulty={difficulty}
                 onDifficultyChange={setDifficulty}
+                maxSpeed={maxSpeed}
               />
           </div>
         </main>
