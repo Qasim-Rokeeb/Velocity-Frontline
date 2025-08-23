@@ -52,6 +52,7 @@ export default function GameController() {
   const [countdown, setCountdown] = useState(3);
   const [selectedCar, setSelectedCar] = useState<Car | null>(carData[0]);
   const [lapProgress, setLapProgress] = useState(0);
+  const [carHealth, setCarHealth] = useState(100);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -75,6 +76,7 @@ export default function GameController() {
     setCollisions(0);
     setLapProgress(0);
     setLapHistory([]);
+    setCarHealth(100);
     // Keep best lap across sessions until page reload
     // setBestLap(Infinity) 
     passedCheckpoint.current = false;
@@ -90,6 +92,7 @@ export default function GameController() {
     setCollisions(0);
     setLapProgress(0);
     setLapHistory([]);
+    setCarHealth(100);
     setGameState('countdown');
     setCountdown(3);
   };
@@ -214,6 +217,7 @@ export default function GameController() {
       if (isOutOfBounds || isInfield) {
         speed = -speed * 0.5; // Bounce back
         setCollisions(c => c + 1);
+        setCarHealth(h => Math.max(0, h - 15));
       }
 
       // --- Lap Progress ---
@@ -384,6 +388,7 @@ export default function GameController() {
             bestLap={bestLap}
             collisions={collisions}
             lapProgress={lapProgress}
+            carHealth={carHealth}
         />
         <div className="flex flex-col gap-2 w-full lg:w-auto">
             <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>

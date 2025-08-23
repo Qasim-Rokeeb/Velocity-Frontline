@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import LapProgress from "./LapProgress";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import DamageIndicator from "./DamageIndicator";
 
 
 interface DashboardProps {
@@ -19,6 +20,7 @@ interface DashboardProps {
   collisions: number;
   maxSpeed: number;
   lapProgress: number;
+  carHealth: number;
 }
 
 const formatTime = (time: number) => {
@@ -42,7 +44,7 @@ const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNo
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed, lapProgress }: DashboardProps) {
+export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed, lapProgress, carHealth }: DashboardProps) {
   const [isNewBestLap, setIsNewBestLap] = useState(false);
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
@@ -125,7 +127,10 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
             </Tooltip>
           </div>
         </div>
-        <LapProgress progress={lapProgress} />
+        <div className="space-y-2">
+            <LapProgress progress={lapProgress} />
+            <DamageIndicator health={carHealth} />
+        </div>
       </CardContent>
     </Card>
   );
