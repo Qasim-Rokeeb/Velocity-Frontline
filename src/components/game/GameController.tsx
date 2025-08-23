@@ -80,7 +80,7 @@ export default function GameController({
   const lastTimestampRef = useRef<number>();
   const passedCheckpoint = useRef(false);
   const sparkIdCounter = useRef(0);
-  const steeringWheelAngleRef = useRef(0);
+  const joystickDataRef = useRef({ angle: 0, distance: 0 });
 
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
@@ -194,20 +194,39 @@ export default function GameController({
       const maxReverseSpeed = -2;
 
       const { accelerate, brake, left, right } = keybindings;
-      if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
-      if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
+      const joystick = joystickDataRef.current;
+
+      // --- Acceleration & Braking ---
+      if (joystick.distance > 0) { // Joystick is active
+        const joystickAngleRad = joystick.angle * (Math.PI / 180);
+        const forwardComponent = Math.cos(joystickAngleRad); // -1 to 1, where 1 is up
+        if (forwardComponent > 0) { // Moving joystick forward
+          const acceleration = accelerationSensitivity * forwardComponent * (joystick.distance / 50);
+          speed = Math.min(maxSpeed, speed + acceleration);
+        } else { // Moving joystick backward
+          const braking = brakeStrength * -forwardComponent * (joystick.distance / 50);
+          speed = Math.max(maxReverseSpeed, speed - braking);
+        }
+      } else { // Keyboard controls
+        if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
+        if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
+      }
       
       speed *= friction;
       if (Math.abs(speed) < 0.01) speed = 0;
 
+      // --- Steering ---
       if (speed !== 0) {
           const flip = speed > 0 ? 1 : -1;
-          if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * flip;
-          if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * flip;
           
-          // Steering wheel input
-          if (steeringWheelAngleRef.current !== 0) {
-              angle += (steeringWheelAngleRef.current / 90) * turnSpeed * flip; // Max 90 degrees turn on wheel
+          if (joystick.distance > 0) { // Joystick steering
+              const joystickAngleRad = joystick.angle * (Math.PI / 180);
+              const turnComponent = Math.sin(joystickAngleRad); // -1 to 1, where 1 is right
+              const turnAmount = turnComponent * (joystick.distance / 50);
+              angle += turnSpeed * turnAmount * flip * 0.5; // Adjust multiplier as needed
+          } else { // Keyboard steering
+              if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * flip;
+              if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * flip;
           }
       }
       
@@ -216,30 +235,24 @@ export default function GameController({
         const dx = x - TRACK_CENTER.x;
         const dy = y - TRACK_CENTER.y;
         
-        // Calculate the tangent angle to the ellipse at the car's position
-        // The tangent to an ellipse (x^2/a^2 + y^2/b^2 = 1) at (x0, y0) has slope - (b^2 * x0) / (a^2 * y0)
-        // The track is an average of the inner and outer ellipses
         const avg_rx = (TRACK_OUTER.rx + TRACK_INNER.rx) / 2;
         const avg_ry = (TRACK_OUTER.ry + TRACK_INNER.ry) / 2;
 
         const tangentSlope = -(avg_ry ** 2 * dx) / (avg_rx ** 2 * dy);
         let targetAngle = Math.atan(tangentSlope) * (180 / Math.PI);
         
-        // Adjust angle based on quadrant, because atan has a limited range
         if (dy > 0) {
             targetAngle += 180;
         }
-        if (speed < 0) { // If reversing, flip the angle
+        if (speed < 0) {
              targetAngle += 180;
         }
 
-        // Determine direction (clockwise or counter-clockwise)
         const isCounterClockwise = speed > 0;
         if (!isCounterClockwise) {
-            targetAngle += 180; // Go the other way
+            targetAngle += 180;
         }
         
-        // Normalize angles to be within -180 to 180
         const normalizeAngle = (a:number) => (a + 180) % 360 - 180;
         const currentNormalizedAngle = normalizeAngle(angle);
         const targetNormalizedAngle = normalizeAngle(targetAngle);
@@ -248,8 +261,7 @@ export default function GameController({
         if (angleDiff > 180) angleDiff -= 360;
         if (angleDiff < -180) angleDiff += 360;
 
-        // Gently nudge the car's angle towards the target angle
-        const assistStrength = 0.03; // Lower value = gentler assist
+        const assistStrength = 0.03;
         angle += angleDiff * assistStrength * deltaTime;
       }
 
@@ -270,11 +282,9 @@ export default function GameController({
         setCollisions(c => c + 1);
         setCarHealth(h => Math.max(0, h - 15));
         
-        // Trigger sparks
         const newSparkId = sparkIdCounter.current++;
         setSparks(s => [...s, { id: newSparkId, x, y }]);
 
-        // Vibrate on collision for mobile devices
         if (navigator.vibrate) {
           navigator.vibrate(100);
         }
@@ -285,17 +295,15 @@ export default function GameController({
 
 
       // --- Lap Detection ---
-      // Checkpoint on the left side
       if (x < TRACK_CENTER.x - 50) {
         passedCheckpoint.current = true;
       }
 
-      // Finish line on the right side
       if (
         passedCheckpoint.current &&
-        x > FINISH_LINE.x && x < FINISH_LINE.x + 20 && // In a vertical band
-        y > FINISH_LINE.y_start && y < FINISH_LINE.y_end && // Crossing the line
-        Math.abs(angle) > 80 && Math.abs(angle) < 100 // Roughly horizontal
+        x > FINISH_LINE.x && x < FINISH_LINE.x + 20 &&
+        y > FINISH_LINE.y_start && y < FINISH_LINE.y_end &&
+        Math.abs(angle) > 80 && Math.abs(angle) < 100
       ) {
           handleLapCompletion();
           passedCheckpoint.current = false;
@@ -346,7 +354,6 @@ export default function GameController({
         setLapTime(t => t + 10);
       }, 10);
       if (currentLap === 0) {
-        // Start lap 1
         setCurrentLap(1);
         setLapTime(0);
         passedCheckpoint.current = false;
@@ -443,7 +450,7 @@ export default function GameController({
             sparks={sparks}
             onSparkAnimationComplete={handleRemoveSpark}
             touchControlsRef={keys}
-            steeringWheelAngleRef={steeringWheelAngleRef}
+            joystickDataRef={joystickDataRef}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
