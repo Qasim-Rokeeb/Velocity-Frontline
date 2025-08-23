@@ -1,13 +1,19 @@
 // src/components/game/SettingsPanel.tsx
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Settings } from "lucide-react";
+import { Settings, Gamepad2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Switch } from "../ui/switch";
+import { Separator } from "../ui/separator";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
+
+export type KeyAction = 'accelerate' | 'brake' | 'left' | 'right';
+export type Keybindings = Record<KeyAction, string>;
 
 interface SettingsPanelProps {
     steeringSensitivity: number;
@@ -20,7 +26,27 @@ interface SettingsPanelProps {
     onAutoAccelerateChange: (value: boolean) => void;
     steeringAssist: boolean;
     onSteeringAssistChange: (value: boolean) => void;
+    keybindings: Keybindings;
+    onKeybindingsChange: (keybindings: Keybindings) => void;
 }
+
+const KeybindingButton = ({ keyName, onSetKey, isBinding, action }: { keyName: string; onSetKey: () => void; isBinding: boolean, action: KeyAction }) => {
+    const displayName = (action.charAt(0).toUpperCase() + action.slice(1)).replace(/([A-Z])/g, ' $1').trim();
+    return (
+        <div className="flex items-center justify-between">
+            <Label htmlFor={`keybind-${action}`}>{displayName}</Label>
+            <Button
+                id={`keybind-${action}`}
+                variant="outline"
+                onClick={onSetKey}
+                className={cn("w-24", isBinding && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
+            >
+                {isBinding ? "Press key..." : keyName.toUpperCase()}
+            </Button>
+        </div>
+    );
+};
+
 
 export default function SettingsPanel({ 
     steeringSensitivity, onSteeringSensitivityChange,
@@ -28,7 +54,34 @@ export default function SettingsPanel({
     brakeStrength, onBrakeStrengthChange,
     autoAccelerate, onAutoAccelerateChange,
     steeringAssist, onSteeringAssistChange,
+    keybindings, onKeybindingsChange,
 }: SettingsPanelProps) {
+  const [bindingAction, setBindingAction] = useState<KeyAction | null>(null);
+
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (bindingAction) {
+      event.preventDefault();
+      // Check if key is already bound
+      if (Object.values(keybindings).includes(event.key.toLowerCase())) {
+          console.warn("Key already bound");
+          setBindingAction(null);
+          return;
+      }
+      onKeybindingsChange({ ...keybindings, [bindingAction]: event.key.toLowerCase() });
+      setBindingAction(null);
+    }
+  }, [bindingAction, keybindings, onKeybindingsChange]);
+
+  useEffect(() => {
+    if (bindingAction) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [bindingAction, handleKeyDown]);
+
+
   return (
     <Card className="bg-card/50">
         <CardHeader>
@@ -137,6 +190,24 @@ export default function SettingsPanel({
                     value={[brakeStrength]}
                     onValueChange={(value) => onBrakeStrengthChange(value[0])}
                 />
+            </div>
+            <Separator />
+            <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                    <Gamepad2 className="h-5 w-5 text-muted-foreground" />
+                    <Label>Keybindings</Label>
+                </div>
+                <div className="space-y-2 pt-2">
+                    {(Object.keys(keybindings) as KeyAction[]).map((action) => (
+                        <KeybindingButton
+                            key={action}
+                            action={action}
+                            keyName={keybindings[action]}
+                            onSetKey={() => setBindingAction(action)}
+                            isBinding={bindingAction === action}
+                        />
+                    ))}
+                </div>
             </div>
         </CardContent>
     </Card>

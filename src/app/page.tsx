@@ -13,7 +13,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import MusicToggle from '@/components/MusicToggle';
 import { Separator } from '@/components/ui/separator';
-import SettingsPanel from '@/components/game/SettingsPanel';
+import SettingsPanel, { Keybindings } from '@/components/game/SettingsPanel';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -32,6 +32,12 @@ export default function Home() {
   const [brakeStrength, setBrakeStrength] = useState(0.1);
   const [autoAccelerate, setAutoAccelerate] = useState(false);
   const [steeringAssist, setSteeringAssist] = useState(false);
+  const [keybindings, setKeybindings] = useState<Keybindings>({
+    accelerate: 'w',
+    brake: 's',
+    left: 'a',
+    right: 'd',
+  });
 
   return (
     <div className="flex">
@@ -48,6 +54,8 @@ export default function Home() {
                 onAutoAccelerateChange={setAutoAccelerate}
                 steeringAssist={steeringAssist}
                 onSteeringAssistChange={setSteeringAssist}
+                keybindings={keybindings}
+                onKeybindingsChange={setKeybindings}
             />
             <DifficultyPanel />
             <Leaderboard />
@@ -66,20 +74,20 @@ export default function Home() {
                     {/* WASD Controls */}
                     <div className="flex flex-col items-center space-y-2">
                         <div className="flex flex-col items-center space-y-1">
-                            <KeyDisplay>W</KeyDisplay>
+                            <KeyDisplay>{keybindings.accelerate.toUpperCase()}</KeyDisplay>
                             <span className="text-xs text-muted-foreground">Accelerate</span>
                         </div>
                         <div className="flex gap-2">
                             <div className="flex flex-col items-center space-y-1">
-                                <KeyDisplay>A</KeyDisplay>
+                                <KeyDisplay>{keybindings.left.toUpperCase()}</KeyDisplay>
                                 <span className="text-xs text-muted-foreground">Steer L</span>
                             </div>
                             <div className="flex flex-col items-center space-y-1">
-                                <KeyDisplay>S</KeyDisplay>
+                                <KeyDisplay>{keybindings.brake.toUpperCase()}</KeyDisplay>
                                 <span className="text-xs text-muted-foreground">Brake</span>
                             </div>
                             <div className="flex flex-col items-center space-y-1">
-                                <KeyDisplay>D</KeyDisplay>
+                                <KeyDisplay>{keybindings.right.toUpperCase()}</KeyDisplay>
                                 <span className="text-xs text-muted-foreground">Steer R</span>
                             </div>
                         </div>
@@ -146,6 +154,7 @@ export default function Home() {
                 brakeStrength={brakeStrength}
                 autoAccelerate={autoAccelerate}
                 steeringAssist={steeringAssist}
+                keybindings={keybindings}
               />
           </div>
         </main>

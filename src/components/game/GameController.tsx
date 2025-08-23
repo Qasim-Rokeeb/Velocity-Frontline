@@ -20,6 +20,7 @@ import { Car, cars as carData } from '@/components/game/CarSprites';
 import RacingLights from './RacingLights';
 import { motion, AnimatePresence } from 'framer-motion';
 import LapHistory from './LapHistory';
+import { Keybindings } from './SettingsPanel';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -48,10 +49,18 @@ interface GameControllerProps {
     brakeStrength: number;
     autoAccelerate: boolean;
     steeringAssist: boolean;
+    keybindings: Keybindings;
 }
 
 
-export default function GameController({ steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist }: GameControllerProps) {
+export default function GameController({ 
+    steeringSensitivity, 
+    accelerationSensitivity, 
+    brakeStrength, 
+    autoAccelerate, 
+    steeringAssist,
+    keybindings,
+}: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
   const [lapTime, setLapTime] = useState(0);
@@ -183,16 +192,17 @@ export default function GameController({ steeringSensitivity, accelerationSensit
       const maxSpeed = 5;
       const maxReverseSpeed = -2;
 
-      if (autoAccelerate || keys.current.arrowup || keys.current.w) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
-      if (keys.current.arrowdown || keys.current.s) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
+      const { accelerate, brake, left, right } = keybindings;
+      if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
+      if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
       
       speed *= friction;
       if (Math.abs(speed) < 0.01) speed = 0;
 
       if (speed !== 0) {
           const flip = speed > 0 ? 1 : -1;
-          if (keys.current.arrowleft || keys.current.a) angle -= turnSpeed * flip;
-          if (keys.current.arrowright || keys.current.d) angle += turnSpeed * flip;
+          if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * flip;
+          if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * flip;
       }
       
       // --- Steering Assist ---
@@ -289,7 +299,7 @@ export default function GameController({ steeringSensitivity, accelerationSensit
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist]);
+  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings]);
 
 
   useEffect(() => {
