@@ -11,9 +11,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 interface SettingsPanelProps {
     steeringSensitivity: number;
     onSteeringSensitivityChange: (value: number) => void;
+    accelerationSensitivity: number;
+    onAccelerationSensitivityChange: (value: number) => void;
 }
 
-export default function SettingsPanel({ steeringSensitivity, onSteeringSensitivityChange }: SettingsPanelProps) {
+export default function SettingsPanel({ 
+    steeringSensitivity, onSteeringSensitivityChange,
+    accelerationSensitivity, onAccelerationSensitivityChange
+}: SettingsPanelProps) {
   return (
     <Card className="bg-card/50">
         <CardHeader>
@@ -25,7 +30,7 @@ export default function SettingsPanel({ steeringSensitivity, onSteeringSensitivi
                 </div>
             </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
             <div className="space-y-2">
                 <Tooltip>
                     <TooltipTrigger className="w-full">
@@ -45,6 +50,27 @@ export default function SettingsPanel({ steeringSensitivity, onSteeringSensitivi
                     step={0.1}
                     value={[steeringSensitivity]}
                     onValueChange={(value) => onSteeringSensitivityChange(value[0])}
+                />
+            </div>
+            <div className="space-y-2">
+                <Tooltip>
+                    <TooltipTrigger className="w-full">
+                        <Label htmlFor="acceleration-sensitivity" className="flex justify-between items-center">
+                            <span>Acceleration</span>
+                            <span className="text-xs text-muted-foreground">{accelerationSensitivity.toFixed(2)}</span>
+                        </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Adjust how quickly your car accelerates. Higher is faster.</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Slider
+                    id="acceleration-sensitivity"
+                    min={0.05}
+                    max={0.2}
+                    step={0.01}
+                    value={[accelerationSensitivity]}
+                    onValueChange={(value) => onAccelerationSensitivityChange(value[0])}
                 />
             </div>
         </CardContent>

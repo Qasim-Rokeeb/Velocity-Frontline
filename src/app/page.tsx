@@ -28,6 +28,7 @@ const KeyDisplay = ({ children, className }: { children: React.ReactNode, classN
 
 export default function Home() {
   const [steeringSensitivity, setSteeringSensitivity] = useState(2.5);
+  const [accelerationSensitivity, setAccelerationSensitivity] = useState(0.1);
 
   return (
     <div className="flex">
@@ -36,6 +37,8 @@ export default function Home() {
             <SettingsPanel 
                 steeringSensitivity={steeringSensitivity}
                 onSteeringSensitivityChange={setSteeringSensitivity}
+                accelerationSensitivity={accelerationSensitivity}
+                onAccelerationSensitivityChange={setAccelerationSensitivity}
             />
             <DifficultyPanel />
             <Leaderboard />
@@ -128,7 +131,10 @@ export default function Home() {
           </header>
           
           <div className="w-full max-w-7xl">
-              <GameController steeringSensitivity={steeringSensitivity} />
+              <GameController 
+                steeringSensitivity={steeringSensitivity} 
+                accelerationSensitivity={accelerationSensitivity}
+              />
           </div>
         </main>
       </SidebarInset>
