@@ -19,6 +19,7 @@ import { Difficulty } from '@/components/game/DifficultySelector';
 import WeatherToggle, { Weather } from '@/components/game/WeatherToggle';
 import FogToggle from '@/components/game/FogToggle';
 import ZoomToggle from '@/components/game/ZoomToggle';
+import CameraToggle, { CameraMode } from '@/components/game/CameraToggle';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -51,6 +52,7 @@ export default function Home() {
   const [weather, setWeather] = useState<Weather>('sunny');
   const [fog, setFog] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [cameraMode, setCameraMode] = useState<CameraMode>('top-down');
 
 
   return (
@@ -160,6 +162,7 @@ export default function Home() {
               The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
             </p>
             <div className="flex items-center gap-2">
+              <CameraToggle cameraMode={cameraMode} onCameraModeChange={setCameraMode} />
               <ZoomToggle zoomLevel={zoomLevel} onZoomChange={setZoomLevel} />
               <FogToggle isFoggy={fog} onFogChange={setFog} />
               <WeatherToggle weather={weather} onWeatherChange={setWeather} />
@@ -187,6 +190,7 @@ export default function Home() {
                 weather={weather}
                 fog={fog}
                 zoomLevel={zoomLevel}
+                cameraMode={cameraMode}
               />
           </div>
         </main>

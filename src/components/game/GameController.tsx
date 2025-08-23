@@ -24,6 +24,7 @@ import LapHistory from './LapHistory';
 import { Keybindings } from './SettingsPanel';
 import { Difficulty } from './DifficultySelector';
 import { Weather } from './WeatherToggle';
+import { CameraMode } from './CameraToggle';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -65,6 +66,7 @@ interface GameControllerProps {
     weather: Weather;
     fog: boolean;
     zoomLevel: number;
+    cameraMode: CameraMode;
 }
 
 
@@ -86,6 +88,7 @@ export default function GameController({
     weather,
     fog,
     zoomLevel,
+    cameraMode,
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -530,6 +533,7 @@ export default function GameController({
             weather={weather}
             fog={fog}
             zoomLevel={zoomLevel}
+            cameraMode={cameraMode}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">

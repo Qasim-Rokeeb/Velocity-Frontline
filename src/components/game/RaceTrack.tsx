@@ -10,6 +10,7 @@ import TouchControls from './TouchControls';
 import { cn } from '@/lib/utils';
 import { Weather } from './WeatherToggle';
 import RainEffect from './RainEffect';
+import { CameraMode } from './CameraToggle';
 
 interface Spark {
     id: number;
@@ -36,6 +37,7 @@ interface RaceTrackProps {
   weather: Weather;
   fog: boolean;
   zoomLevel: number;
+  cameraMode: CameraMode;
 }
 
 const CarSprite = ({ selectedCar, angle, speed, color, weather }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather }) => {
@@ -61,8 +63,20 @@ export default function RaceTrack({
     joystickDataRef, 
     weather, 
     fog,
-    zoomLevel
+    zoomLevel,
+    cameraMode
 }: RaceTrackProps) {
+
+  const worldStyle: React.CSSProperties = cameraMode === 'first-person' 
+  ? {
+      transform: `scale(${zoomLevel}) rotate(${-carState.angle - 90}deg) translate(${-carState.x + 400}px, ${-carState.y + 250}px)`,
+      transformOrigin: `${carState.x}px ${carState.y}px`,
+      transition: 'transform 0.05s linear',
+  } 
+  : { 
+      transform: `scale(${zoomLevel})` 
+  };
+
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden relative">
         <MiniMap carPosition={carState} />
@@ -74,7 +88,7 @@ export default function RaceTrack({
 
         <div 
             className="transition-transform duration-500 ease-in-out" 
-            style={{ transform: `scale(${zoomLevel})` }}
+            style={worldStyle}
         >
             <svg width="800" height="500" viewBox="0 0 800 500" className="relative z-10">
                 <defs>
@@ -141,7 +155,8 @@ export default function RaceTrack({
             <div
                 className={cn(
                     "absolute transition-transform duration-75 z-20",
-                    carState.isSkidding && 'animate-shake'
+                    carState.isSkidding && 'animate-shake',
+                    cameraMode === 'first-person' && 'opacity-0' // Hide car in first person
                 )}
                 style={{
                 left: `${carState.x}px`,
