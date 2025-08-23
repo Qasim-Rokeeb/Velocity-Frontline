@@ -183,7 +183,7 @@ export default function GameController() {
     const handleKeyDown = (e: KeyboardEvent) => { 
         keys.current[e.key] = true; 
         if(e.key.toLowerCase() === 'r') resetGame();
-        if(e.key.toLowerCase() === 'p') togglePause();
+        if(e.key === 'p' || e.key === 'P') togglePause();
     };
     const handleKeyUp = (e: KeyboardEvent) => { keys.current[e.key] = false; };
     window.addEventListener('keydown', handleKeyDown);
@@ -195,7 +195,7 @@ export default function GameController() {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
       if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     };
-  }, [resetGame]);
+  }, [resetGame, togglePause]);
 
   useEffect(() => {
       if (gameState === 'countdown') {
@@ -250,7 +250,7 @@ export default function GameController() {
             )}
             {gameState === 'paused' && (
                 <div className="flex flex-col items-center gap-4">
-                    <h2 className="text-5xl font-headline text-primary">Paused</h2>
+                    <h2 className="text-5xl font-headline text-primary animate-pulse">Paused</h2>
                     <Button onClick={togglePause} size="lg">
                         <PlayCircle className="mr-2 h-5 w-5" /> Resume
                     </Button>
