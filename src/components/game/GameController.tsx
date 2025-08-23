@@ -19,6 +19,7 @@ import CarSelection from './CarSelection';
 import { Car, cars as carData } from '@/components/game/CarSprites';
 import RacingLights from './RacingLights';
 import { motion, AnimatePresence } from 'framer-motion';
+import LapHistory from './LapHistory';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -44,6 +45,7 @@ export default function GameController() {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
   const [lapTime, setLapTime] = useState(0);
+  const [lapHistory, setLapHistory] = useState<number[]>([]);
   const [currentLap, setCurrentLap] = useState(0);
   const [bestLap, setBestLap] = useState(Infinity);
   const [collisions, setCollisions] = useState(0);
@@ -72,6 +74,7 @@ export default function GameController() {
     setLapTime(0);
     setCollisions(0);
     setLapProgress(0);
+    setLapHistory([]);
     // Keep best lap across sessions until page reload
     // setBestLap(Infinity) 
     passedCheckpoint.current = false;
@@ -80,11 +83,13 @@ export default function GameController() {
   
   const startGame = () => {
     if (!selectedCar) return;
+    resetGame();
     setCarState(INITIAL_CAR_STATE);
     setCurrentLap(0);
     setLapTime(0);
     setCollisions(0);
     setLapProgress(0);
+    setLapHistory([]);
     setGameState('countdown');
     setCountdown(3);
   };
@@ -102,6 +107,7 @@ export default function GameController() {
       if (lapTime < bestLap) {
         setBestLap(lapTime);
       }
+      setLapHistory(prev => [...prev, lapTime]);
     }
 
     if (currentLap + 1 > TOTAL_LAPS) {
@@ -369,7 +375,7 @@ export default function GameController() {
         </AlertDialog>
         <RaceTrack carPosition={carState} carAngle={carState.angle} selectedCar={selectedCar} />
       </div>
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-4 flex-col lg:flex-row">
         <Dashboard
             speed={Math.abs(carState.speed * (MAX_SPEED_KMH / 5))}
             maxSpeed={MAX_SPEED_KMH}
@@ -379,7 +385,7 @@ export default function GameController() {
             collisions={collisions}
             lapProgress={lapProgress}
         />
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full lg:w-auto">
             <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>
                 {gameState === 'paused' ? <PlayCircle className="mr-2 h-5 w-5"/> : <Pause className="mr-2 h-5 w-5"/>}
                 {gameState === 'paused' ? 'Resume' : 'Pause'}
@@ -390,6 +396,7 @@ export default function GameController() {
             </Button>
         </div>
       </div>
+       <LapHistory lapTimes={lapHistory} />
     </div>
   );
 }
