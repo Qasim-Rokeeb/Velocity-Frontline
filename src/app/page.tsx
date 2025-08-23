@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import Logo from '@/components/game/Logo';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -19,11 +20,8 @@ const KeyDisplay = ({ children, className }: { children: React.ReactNode, classN
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-card to-background">
-      <header className="text-center space-y-2">
-        <h1 className="text-5xl lg:text-7xl font-headline font-bold text-primary tracking-wider uppercase"
-          style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))' }}>
-          Velocity Frontline
-        </h1>
+      <header className="text-center space-y-4">
+        <Logo />
         <p className="text-muted-foreground font-body max-w-2xl text-lg">
           The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
         </p>
