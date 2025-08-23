@@ -64,6 +64,7 @@ interface GameControllerProps {
     tireGrip: number;
     weather: Weather;
     fog: boolean;
+    zoomLevel: number;
 }
 
 
@@ -83,7 +84,8 @@ export default function GameController({
     maxSpeed,
     tireGrip,
     weather,
-    fog
+    fog,
+    zoomLevel,
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -527,6 +529,7 @@ export default function GameController({
             joystickDataRef={joystickDataRef}
             weather={weather}
             fog={fog}
+            zoomLevel={zoomLevel}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
