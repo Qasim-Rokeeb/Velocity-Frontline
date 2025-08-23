@@ -76,13 +76,16 @@ export default function GameController() {
   
   const startGame = () => {
     if (!selectedCar) return;
-    resetGame();
+    setCarState(INITIAL_CAR_STATE);
+    setCurrentLap(0);
+    setLapTime(0);
+    setCollisions(0);
     setGameState('countdown');
     setCountdown(3);
   };
 
   const handleLapCompletion = useCallback(() => {
-    if (currentLap > 0) {
+    if (currentLap > 0 && lapTime > 0) {
       if (lapTime < bestLap) {
         setBestLap(lapTime);
       }
@@ -213,7 +216,7 @@ export default function GameController() {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
       if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     }
-  }, [gameState, gameLoop]);
+  }, [gameState, gameLoop, currentLap]);
 
   return (
     <div className="space-y-4">

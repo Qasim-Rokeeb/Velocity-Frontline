@@ -4,6 +4,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Timer, ChevronsRight, ShieldAlert, Trophy } from 'lucide-react';
 import Speedometer from "./Speedometer";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface DashboardProps {
   speed: number;
@@ -22,8 +24,8 @@ const formatTime = (time: number) => {
   return `${minutes}:${seconds}.${milliseconds}`;
 };
 
-const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: string, value: string, unit?: string }) => (
-  <div className="flex flex-col items-center justify-center p-4 bg-background/50 rounded-xl shadow-inner text-center h-full border border-border/20">
+const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNode, title: string, value: string, unit?: string, className?: string }) => (
+  <div className={cn("flex flex-col items-center justify-center p-4 bg-background/50 rounded-xl shadow-inner text-center h-full border border-border/20", className)}>
     <div className="flex items-center gap-2 text-muted-foreground">
       {icon}
       <span className="text-sm font-medium">{title}</span>
@@ -36,6 +38,18 @@ const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: 
 );
 
 export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed }: DashboardProps) {
+  const [isNewBestLap, setIsNewBestLap] = useState(false);
+  const [prevBestLap, setPrevBestLap] = useState(bestLap);
+
+  useEffect(() => {
+    if (bestLap < prevBestLap) {
+      setIsNewBestLap(true);
+      const timer = setTimeout(() => setIsNewBestLap(false), 2000); // Animation duration
+      return () => clearTimeout(timer);
+    }
+    setPrevBestLap(bestLap);
+  }, [bestLap, prevBestLap]);
+
   return (
     <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
       <CardContent className="p-4">
@@ -46,7 +60,12 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
           <div className="grid grid-cols-2 lg:grid-cols-4 col-span-1 sm:col-span-3 lg:col-span-4 gap-4">
             <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
             <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
-            <StatCard icon={<Trophy className="h-5 w-5" />} title="Best Lap" value={formatTime(bestLap)} />
+            <StatCard
+              icon={<Trophy className="h-5 w-5" />}
+              title="Best Lap"
+              value={formatTime(bestLap)}
+              className={cn(isNewBestLap && 'animate-pulse-strong')}
+            />
             <StatCard icon={<ShieldAlert className="h-5 w-5" />} title="Collisions" value={collisions.toString()} />
           </div>
         </div>
