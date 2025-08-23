@@ -196,7 +196,7 @@ export default function GameController() {
             {gameState === 'idle' && (
               <>
                 <h2 className="text-6xl font-headline font-bold">Ready to Race?</h2>
-                <Button onClick={startGame} size="lg" className="mt-8">
+                <Button onClick={startGame} size="lg" className="mt-8 animate-pulse-strong">
                   <Play className="mr-2 h-5 w-5" /> Start Race
                 </Button>
               </>
