@@ -52,6 +52,8 @@ interface GameControllerProps {
     keybindings: Keybindings;
     carColor: string;
     onCarColorChange: (color: string) => void;
+    playerName: string;
+    onPlayerNameChange: (name: string) => void;
 }
 
 
@@ -64,6 +66,8 @@ export default function GameController({
     keybindings,
     carColor,
     onCarColorChange,
+    playerName,
+    onPlayerNameChange
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -391,9 +395,11 @@ export default function GameController({
                         selectedCar={selectedCar} 
                         carColor={carColor}
                         onCarColorChange={onCarColorChange}
+                        playerName={playerName}
+                        onPlayerNameChange={onPlayerNameChange}
                     />
-                    <Button onClick={startGame} size="lg" className="animate-pulse-strong" disabled={!selectedCar}>
-                    <Play className="mr-2 h-5 w-5" /> Start Race
+                    <Button onClick={startGame} size="lg" className="animate-pulse-strong" disabled={!selectedCar || !playerName}>
+                        <Play className="mr-2 h-5 w-5" /> Start Race
                     </Button>
                 </div>
                 )}
@@ -440,7 +446,7 @@ export default function GameController({
                 Race Finished!
               </AlertDialogTitle>
               <AlertDialogDescription className="text-lg text-center">
-                Congratulations! You completed all {TOTAL_LAPS} laps.
+                Congratulations, {playerName}! You completed all {TOTAL_LAPS} laps.
                 <div className="font-mono text-xl text-foreground my-4">
                     Best Lap: {formatTime(bestLap)}
                 </div>

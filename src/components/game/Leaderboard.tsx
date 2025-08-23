@@ -14,15 +14,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const leaderboardData = [
-  { rank: 1, name: 'Player 1', time: '00:58.123' },
-  { rank: 2, name: 'AI Opponent 1', time: '00:59.456' },
-  { rank: 3, name: 'Player 2', time: '01:01.789' },
-  { rank: 4, name: 'AI Opponent 2', time: '01:02.345' },
-  { rank: 5, name: 'Player 3', time: '01:03.678' },
+const initialLeaderboardData = [
+  { rank: 1, name: 'AI Viper', time: '00:58.123' },
+  { rank: 2, name: 'AI Hellcat', time: '00:59.456' },
+  { rank: 3, name: 'AI 911', time: '01:01.789' },
+  { rank: 4, name: 'AI Huracan', time: '01:02.345' },
+  { rank: 5, name: 'AI Venom', time: '01:03.678' },
 ];
 
-const Leaderboard = () => {
+interface LeaderboardProps {
+    playerName: string;
+}
+
+const Leaderboard = ({ playerName }: LeaderboardProps) => {
+  // Replace one of the AI opponents with the player's name
+  const leaderboardData = [...initialLeaderboardData];
+  const playerEntryIndex = leaderboardData.findIndex(e => e.name.startsWith('AI'));
+  
+  if (playerEntryIndex !== -1 && playerName) {
+      leaderboardData[playerEntryIndex] = {
+          ...leaderboardData[playerEntryIndex],
+          name: playerName,
+      }
+  }
+
   return (
     <Card className="bg-card/50">
       <CardHeader>
@@ -50,7 +65,8 @@ const Leaderboard = () => {
                 className={cn(
                   "animate-fade-in-down transition-all duration-200 hover:bg-primary/10 hover:scale-[1.02]",
                   {
-                    'bg-primary/20': entry.rank === 1
+                    'bg-primary/20': entry.rank === 1,
+                    'font-bold text-primary': entry.name === playerName
                   }
                 )}
                 style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}

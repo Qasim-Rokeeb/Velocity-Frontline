@@ -39,6 +39,7 @@ export default function Home() {
     right: 'd',
   });
   const [carColor, setCarColor] = useState('hsl(var(--primary))');
+  const [playerName, setPlayerName] = useState('Player 1');
 
   return (
     <div className="flex">
@@ -59,7 +60,7 @@ export default function Home() {
                 onKeybindingsChange={setKeybindings}
             />
             <DifficultyPanel />
-            <Leaderboard />
+            <Leaderboard playerName={playerName} />
             <Card className="bg-card/50">
               <CardHeader>
                   <div className="flex items-center gap-3">
@@ -158,6 +159,8 @@ export default function Home() {
                 keybindings={keybindings}
                 carColor={carColor}
                 onCarColorChange={setCarColor}
+                playerName={playerName}
+                onPlayerNameChange={setPlayerName}
               />
           </div>
         </main>

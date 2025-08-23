@@ -12,9 +12,11 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, User } from 'lucide-react';
 import { Car, cars, ViperCar, ChallengerCar, PorscheCar, LamboCar } from '@/components/game/CarSprites';
 import ColorPicker from './ColorPicker';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 
 interface CarSelectionProps {
@@ -22,15 +24,32 @@ interface CarSelectionProps {
   selectedCar: Car | null;
   carColor: string;
   onCarColorChange: (color: string) => void;
+  playerName: string;
+  onPlayerNameChange: (name: string) => void;
 }
 
-export default function CarSelection({ onSelectCar, selectedCar, carColor, onCarColorChange }: CarSelectionProps) {
+export default function CarSelection({ onSelectCar, selectedCar, carColor, onCarColorChange, playerName, onPlayerNameChange }: CarSelectionProps) {
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center space-y-6">
       <div>
-          <h2 className="text-4xl font-headline text-center mb-2">Choose Your Ride</h2>
-          <p className="text-center text-muted-foreground">Select a car and a color to begin.</p>
+          <h2 className="text-4xl font-headline text-center mb-2">Prepare for the Race</h2>
+          <p className="text-center text-muted-foreground">Enter your name, choose your ride, and pick a color.</p>
       </div>
+
+      <div className="w-full max-w-sm space-y-2">
+        <Label htmlFor="nickname" className="flex items-center gap-2 text-muted-foreground">
+            <User className="h-4 w-4" />
+            Nickname
+        </Label>
+        <Input 
+            id="nickname" 
+            placeholder="Enter your nickname" 
+            value={playerName}
+            onChange={(e) => onPlayerNameChange(e.target.value)}
+            className="text-center text-lg"
+        />
+      </div>
+
       <Carousel
         opts={{
           align: 'start',
