@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import LapProgress from "./LapProgress";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 interface DashboardProps {
   speed: number;
@@ -76,15 +78,51 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
             <Speedometer speed={speed} maxSpeed={maxSpeed} />
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 col-span-1 sm:col-span-3 lg:col-span-4 gap-4">
-            <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
-            <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
-            <StatCard
-              icon={<Trophy className="h-5 w-5" />}
-              title="Best Lap"
-              value={formatTime(bestLap)}
-              className={cn(isNewBestLap && 'animate-pulse-strong')}
-            />
-            <StatCard icon={<ShieldAlert className="h-5 w-5" />} title="Collisions" value={collisions.toString()} />
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Time for the current lap.</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Your current lap number.</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard
+                            icon={<Trophy className="h-5 w-5" />}
+                            title="Best Lap"
+                            value={formatTime(bestLap)}
+                            className={cn(isNewBestLap && 'animate-pulse-strong')}
+                        />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Your fastest lap time in this session.</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard icon={<ShieldAlert className="h-5 w-5" />} title="Collisions" value={collisions.toString()} />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Number of times you&apos;ve hit a wall.</p>
+                </TooltipContent>
+            </Tooltip>
           </div>
         </div>
         <LapProgress progress={lapProgress} />
