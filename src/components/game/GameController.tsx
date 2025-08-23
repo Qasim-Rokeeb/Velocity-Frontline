@@ -231,6 +231,11 @@ export default function GameController() {
         // Trigger sparks
         const newSparkId = sparkIdCounter.current++;
         setSparks(s => [...s, { id: newSparkId, x, y }]);
+
+        // Vibrate on collision for mobile devices
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
       }
 
       // --- Lap Progress ---
