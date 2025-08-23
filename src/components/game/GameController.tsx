@@ -46,10 +46,11 @@ interface GameControllerProps {
     steeringSensitivity: number;
     accelerationSensitivity: number;
     brakeStrength: number;
+    autoAccelerate: boolean;
 }
 
 
-export default function GameController({ steeringSensitivity, accelerationSensitivity, brakeStrength }: GameControllerProps) {
+export default function GameController({ steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
   const [lapTime, setLapTime] = useState(0);
@@ -181,7 +182,7 @@ export default function GameController({ steeringSensitivity, accelerationSensit
       const maxSpeed = 5;
       const maxReverseSpeed = -2;
 
-      if (keys.current.arrowup || keys.current.w) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
+      if (autoAccelerate || keys.current.arrowup || keys.current.w) speed = Math.min(maxSpeed, speed + accelerationSensitivity);
       if (keys.current.arrowdown || keys.current.s) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
       
       speed *= friction;
@@ -245,7 +246,7 @@ export default function GameController({ steeringSensitivity, accelerationSensit
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength]);
+  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate]);
 
 
   useEffect(() => {

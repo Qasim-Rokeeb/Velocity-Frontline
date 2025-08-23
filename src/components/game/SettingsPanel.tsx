@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Settings } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Switch } from "../ui/switch";
 
 interface SettingsPanelProps {
     steeringSensitivity: number;
@@ -15,12 +16,15 @@ interface SettingsPanelProps {
     onAccelerationSensitivityChange: (value: number) => void;
     brakeStrength: number;
     onBrakeStrengthChange: (value: number) => void;
+    autoAccelerate: boolean;
+    onAutoAccelerateChange: (value: boolean) => void;
 }
 
 export default function SettingsPanel({ 
     steeringSensitivity, onSteeringSensitivityChange,
     accelerationSensitivity, onAccelerationSensitivityChange,
-    brakeStrength, onBrakeStrengthChange
+    brakeStrength, onBrakeStrengthChange,
+    autoAccelerate, onAutoAccelerateChange,
 }: SettingsPanelProps) {
   return (
     <Card className="bg-card/50">
@@ -34,6 +38,23 @@ export default function SettingsPanel({
             </div>
         </CardHeader>
         <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+                <Tooltip>
+                    <TooltipTrigger className="w-full text-left">
+                        <Label htmlFor="auto-accelerate">
+                            Auto-Accelerate
+                        </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>When enabled, your car will accelerate automatically.</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Switch
+                    id="auto-accelerate"
+                    checked={autoAccelerate}
+                    onCheckedChange={onAutoAccelerateChange}
+                />
+            </div>
             <div className="space-y-2">
                 <Tooltip>
                     <TooltipTrigger className="w-full">

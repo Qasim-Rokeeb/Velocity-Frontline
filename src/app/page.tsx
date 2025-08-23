@@ -30,6 +30,7 @@ export default function Home() {
   const [steeringSensitivity, setSteeringSensitivity] = useState(2.5);
   const [accelerationSensitivity, setAccelerationSensitivity] = useState(0.1);
   const [brakeStrength, setBrakeStrength] = useState(0.1);
+  const [autoAccelerate, setAutoAccelerate] = useState(false);
 
   return (
     <div className="flex">
@@ -42,6 +43,8 @@ export default function Home() {
                 onAccelerationSensitivityChange={setAccelerationSensitivity}
                 brakeStrength={brakeStrength}
                 onBrakeStrengthChange={setBrakeStrength}
+                autoAccelerate={autoAccelerate}
+                onAutoAccelerateChange={setAutoAccelerate}
             />
             <DifficultyPanel />
             <Leaderboard />
@@ -138,6 +141,7 @@ export default function Home() {
                 steeringSensitivity={steeringSensitivity} 
                 accelerationSensitivity={accelerationSensitivity}
                 brakeStrength={brakeStrength}
+                autoAccelerate={autoAccelerate}
               />
           </div>
         </main>
