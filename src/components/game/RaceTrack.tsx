@@ -1,3 +1,4 @@
+
 // src/components/game/RaceTrack.tsx
 'use client';
 
@@ -6,6 +7,7 @@ import { Car, ViperCar, ChallengerCar, PorscheCar, LamboCar } from '@/components
 import MiniMap from './MiniMap';
 import Sparks from './Sparks';
 import TouchControls from './TouchControls';
+import { cn } from '@/lib/utils';
 
 interface Spark {
     id: number;
@@ -18,6 +20,7 @@ interface CarState {
     y: number;
     speed: number;
     angle: number;
+    isSkidding: boolean;
 }
 
 interface RaceTrackProps {
@@ -111,7 +114,10 @@ export default function RaceTrack({ carState, selectedCar, carColor, sparks, onS
 
       </svg>
       <div
-        className="absolute"
+        className={cn(
+            "absolute transition-transform duration-75",
+            carState.isSkidding && 'animate-shake'
+        )}
         style={{
           left: `${carState.x}px`,
           top: `${carState.y}px`,

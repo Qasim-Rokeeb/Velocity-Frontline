@@ -1,3 +1,4 @@
+
 // src/components/game/SettingsPanel.tsx
 "use client";
 
@@ -5,7 +6,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Settings, Gamepad2, Gauge } from "lucide-react";
+import { Settings, Gamepad2, Gauge, Waves } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Switch } from "../ui/switch";
 import { Separator } from "../ui/separator";
@@ -30,6 +31,8 @@ interface SettingsPanelProps {
     onKeybindingsChange: (keybindings: Keybindings) => void;
     maxSpeed: number;
     onMaxSpeedChange: (value: number) => void;
+    tireGrip: number;
+    onTireGripChange: (value: number) => void;
 }
 
 const KeybindingButton = ({ keyName, onSetKey, isBinding, action }: { keyName: string; onSetKey: () => void; isBinding: boolean, action: KeyAction }) => {
@@ -57,7 +60,8 @@ export default function SettingsPanel({
     autoAccelerate, onAutoAccelerateChange,
     steeringAssist, onSteeringAssistChange,
     keybindings, onKeybindingsChange,
-    maxSpeed, onMaxSpeedChange
+    maxSpeed, onMaxSpeedChange,
+    tireGrip, onTireGripChange
 }: SettingsPanelProps) {
   const [bindingAction, setBindingAction] = useState<KeyAction | null>(null);
 
@@ -213,6 +217,27 @@ export default function SettingsPanel({
                     step={0.01}
                     value={[brakeStrength]}
                     onValueChange={(value) => onBrakeStrengthChange(value[0])}
+                />
+            </div>
+            <div className="space-y-2">
+                <Tooltip>
+                    <TooltipTrigger className="w-full">
+                        <Label htmlFor="tire-grip" className="flex justify-between items-center">
+                            <span>Tire Grip</span>
+                            <span className="text-xs text-muted-foreground">{tireGrip.toFixed(2)}</span>
+                        </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Adjust your car's tire grip. Lower values increase the chance of skidding.</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Slider
+                    id="tire-grip"
+                    min={0.1}
+                    max={1}
+                    step={0.05}
+                    value={[tireGrip]}
+                    onValueChange={(value) => onTireGripChange(value[0])}
                 />
             </div>
             <Separator />

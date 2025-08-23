@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 'use client';
 
@@ -43,6 +44,7 @@ export default function Home() {
   const [playerName, setPlayerName] = useState('Player 1');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [maxSpeed, setMaxSpeed] = useState(240);
+  const [tireGrip, setTireGrip] = useState(0.5);
 
   return (
     <div className="flex">
@@ -63,6 +65,8 @@ export default function Home() {
                 onKeybindingsChange={setKeybindings}
                 maxSpeed={maxSpeed}
                 onMaxSpeedChange={setMaxSpeed}
+                tireGrip={tireGrip}
+                onTireGripChange={setTireGrip}
             />
             <DifficultyPanel />
             <Leaderboard playerName={playerName} />
@@ -169,6 +173,7 @@ export default function Home() {
                 difficulty={difficulty}
                 onDifficultyChange={setDifficulty}
                 maxSpeed={maxSpeed}
+                tireGrip={tireGrip}
               />
           </div>
         </main>

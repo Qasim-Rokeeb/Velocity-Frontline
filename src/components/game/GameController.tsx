@@ -1,3 +1,4 @@
+
 // src/components/game/GameController.tsx
 'use client';
 
@@ -25,7 +26,7 @@ import { Difficulty } from './DifficultySelector';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
-type CarState = { x: number; y: number; speed: number; angle: number; };
+type CarState = { x: number; y: number; speed: number; angle: number; isSkidding: boolean };
 type Spark = { id: number; x: number; y: number };
 
 const INITIAL_CAR_STATE: CarState = {
@@ -33,6 +34,7 @@ const INITIAL_CAR_STATE: CarState = {
   y: 400,
   speed: 0,
   angle: -90,
+  isSkidding: false,
 };
 
 // Track dimensions (must match RaceTrack.tsx)
@@ -58,6 +60,7 @@ interface GameControllerProps {
     difficulty: Difficulty;
     onDifficultyChange: (difficulty: Difficulty) => void;
     maxSpeed: number;
+    tireGrip: number;
 }
 
 
@@ -75,6 +78,7 @@ export default function GameController({
     difficulty,
     onDifficultyChange,
     maxSpeed,
+    tireGrip,
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -96,6 +100,7 @@ export default function GameController({
   const passedCheckpoint = useRef(false);
   const sparkIdCounter = useRef(0);
   const joystickDataRef = useRef({ angle: 0, distance: 0 });
+  const skidTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
@@ -124,6 +129,7 @@ export default function GameController({
     // setBestLap(Infinity) 
     passedCheckpoint.current = false;
     if (lapTimerRef.current) clearInterval(lapTimerRef.current);
+    if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
   }, []);
   
   const startGame = () => {
@@ -210,7 +216,7 @@ export default function GameController({
     lastTimestampRef.current = timestamp;
 
     setCarState(prev => {
-      let { x, y, speed, angle } = prev;
+      let { x, y, speed, angle, isSkidding } = prev;
 
       // --- Controls ---
       const turnSpeed = steeringSensitivity;
@@ -239,7 +245,8 @@ export default function GameController({
       
       speed *= friction;
       if (Math.abs(speed) < 0.01) speed = 0;
-
+      
+      let isTurning = false;
       // --- Steering ---
       if (speed !== 0) {
           const flip = speed > 0 ? 1 : -1;
@@ -249,14 +256,42 @@ export default function GameController({
               const turnComponent = Math.sin(joystickAngleRad); // -1 to 1, where 1 is right
               const turnAmount = turnComponent * (joystick.distance / 50);
               angle += turnSpeed * turnAmount * flip * 0.5; // Adjust multiplier as needed
+              if (Math.abs(turnComponent) > 0.2) isTurning = true;
           } else { // Keyboard steering
-              if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * flip;
-              if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * flip;
+              if (keys.current.arrowleft || keys.current[left]) {
+                angle -= turnSpeed * flip;
+                isTurning = true;
+              }
+              if (keys.current.arrowright || keys.current[right]) {
+                angle += turnSpeed * flip;
+                isTurning = true;
+              }
           }
+      }
+
+      // --- Tire Grip & Skidding ---
+      if (isTurning && Math.abs(speed) > maxInternalSpeed * 0.6 && !isSkidding) {
+          const skidChance = (1 - tireGrip) * (Math.abs(speed) / maxInternalSpeed) * 0.1;
+          if (Math.random() < skidChance) {
+              isSkidding = true;
+              if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
+              skidTimeoutRef.current = setTimeout(() => {
+                  setCarState(s => ({...s, isSkidding: false}));
+              }, 300); // Skid duration
+          }
+      }
+
+      if (isSkidding) {
+          // Reduce steering effectiveness during skid
+          const skidSteerDampen = 0.5;
+          if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
+          if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
+          // Add a little random angle wobble
+          angle += (Math.random() - 0.5) * 2;
       }
       
       // --- Steering Assist ---
-      if (steeringAssist && speed > 0.5) {
+      if (steeringAssist && speed > 0.5 && !isSkidding) {
         const dx = x - TRACK_CENTER.x;
         const dy = y - TRACK_CENTER.y;
         
@@ -334,11 +369,11 @@ export default function GameController({
           passedCheckpoint.current = false;
       }
 
-      return { x, y, speed, angle };
+      return { x, y, speed, angle, isSkidding };
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed]);
+  }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip]);
 
 
   useEffect(() => {
