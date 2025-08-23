@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const leaderboardData = [
   { rank: 1, name: 'Player 1', time: '00:58.123' },
@@ -46,7 +47,12 @@ const Leaderboard = () => {
             {leaderboardData.map((entry, index) => (
               <TableRow 
                 key={entry.rank}
-                className="animate-fade-in-down"
+                className={cn(
+                  "animate-fade-in-down transition-all duration-200 hover:bg-primary/10 hover:scale-[1.02]",
+                  {
+                    'bg-primary/20': entry.rank === 1
+                  }
+                )}
                 style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
               >
                 <TableCell className="font-medium">{entry.rank}</TableCell>
