@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RaceTrack from './RaceTrack';
 import Dashboard from './Dashboard';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCw, Flag, Trophy } from 'lucide-react';
+import { Play, RotateCw, Flag, Trophy, CarIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import CarSelection from './CarSelection';
+import { Car, cars as carData } from '@/components/game/CarSprites';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished';
@@ -43,6 +45,7 @@ export default function GameController() {
   const [bestLap, setBestLap] = useState(Infinity);
   const [collisions, setCollisions] = useState(0);
   const [countdown, setCountdown] = useState(3);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(carData[0]);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -71,6 +74,7 @@ export default function GameController() {
   }, []);
   
   const startGame = () => {
+    if (!selectedCar) return;
     resetGame();
     setGameState('countdown');
     setCountdown(3);
@@ -217,8 +221,8 @@ export default function GameController() {
           <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white backdrop-blur-sm">
             {gameState === 'idle' && (
               <>
-                <h2 className="text-6xl font-headline font-bold">Ready to Race?</h2>
-                <Button onClick={startGame} size="lg" className="mt-8 animate-pulse-strong">
+                <CarSelection onSelectCar={setSelectedCar} selectedCar={selectedCar} />
+                <Button onClick={startGame} size="lg" className="mt-8 animate-pulse-strong" disabled={!selectedCar}>
                   <Play className="mr-2 h-5 w-5" /> Start Race
                 </Button>
               </>
@@ -251,7 +255,7 @@ export default function GameController() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <RaceTrack carPosition={carState} carAngle={carState.angle} />
+        <RaceTrack carPosition={carState} carAngle={carState.angle} selectedCar={selectedCar} />
       </div>
       <div className="flex items-start gap-4">
         <Dashboard

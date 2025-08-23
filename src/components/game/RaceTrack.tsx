@@ -2,39 +2,28 @@
 'use client';
 
 import React from 'react';
+import { Car, ViperCar, ChallengerCar, PorscheCar, LamboCar } from '@/components/game/CarSprites';
 
 interface RaceTrackProps {
   carPosition: { x: number; y: number };
   carAngle: number;
+  selectedCar: Car | null;
 }
 
-const Car = React.memo(({ angle }: { angle: number }) => (
-    <div className="absolute w-8 h-12 transition-transform duration-75 ease-linear" style={{ transform: `rotate(${angle + 90}deg) scale(0.8)` }}>
-      {/* Base car SVG */}
-      <svg viewBox="0 0 100 200" className="w-full h-full" style={{filter: 'drop-shadow(2px 4px 6px black)'}}>
-        {/* Body */}
-        <path d="M20,10 L80,10 C90,10 100,20 100,30 L100,170 C100,180 90,190 80,190 L20,190 C10,190 0,180 0,170 L0,30 C0,20 10,10 20,10 Z" fill="hsl(var(--primary))" />
-        
-        {/* Windshield */}
-        <path d="M10,60 L90,60 L80,90 L20,90 Z" fill="rgba(0,0,0,0.5)" />
-        
-        {/* Hood lines */}
-        <line x1="30" y1="15" x2="40" y2="55" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
-        <line x1="70" y1="15" x2="60" y2="55" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
-        
-        {/* Headlights */}
-        <circle cx="20" cy="25" r="8" fill="yellow" stroke="rgba(0,0,0,0.3)" strokeWidth="2" />
-        <circle cx="80" cy="25" r="8" fill="yellow" stroke="rgba(0,0,0,0.3)" strokeWidth="2" />
+const CarSprite = ({ selectedCar, angle }: { selectedCar: Car | null, angle: number }) => {
+    if (!selectedCar) return null;
 
-        {/* Spoiler */}
-        <path d="M5,180 L95,180 L100,200 L0,200 Z" fill="hsl(var(--accent))" stroke="black" strokeWidth="2"/>
-      </svg>
-    </div>
-));
-Car.displayName = 'Car';
+    switch(selectedCar.id) {
+        case 'viper': return <ViperCar angle={angle} />;
+        case 'challenger': return <ChallengerCar angle={angle} />;
+        case 'porsche': return <PorscheCar angle={angle} />;
+        case 'lambo': return <LamboCar angle={angle} />;
+        default: return <ViperCar angle={angle} />;
+    }
+}
 
 
-export default function RaceTrack({ carPosition, carAngle }: RaceTrackProps) {
+export default function RaceTrack({ carPosition, carAngle, selectedCar }: RaceTrackProps) {
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden">
       <svg width="100%" height="100%" viewBox="0 0 800 500">
@@ -107,7 +96,7 @@ export default function RaceTrack({ carPosition, carAngle }: RaceTrackProps) {
           transform: `translate(-50%, -50%)`,
         }}
       >
-        <Car angle={carAngle} />
+        <CarSprite selectedCar={selectedCar} angle={carAngle} />
       </div>
     </div>
   );
