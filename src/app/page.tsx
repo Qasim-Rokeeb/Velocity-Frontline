@@ -1,5 +1,6 @@
 import GameController from '@/components/game/GameController';
 import DifficultyPanel from '@/components/game/DifficultyPanel';
+import Leaderboard from '@/components/game/Leaderboard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,8 +23,9 @@ export default function Home() {
   return (
     <div className="flex">
       <Sidebar collapsible="icon">
-        <SidebarContent>
+        <SidebarContent className="space-y-4">
             <DifficultyPanel />
+            <Leaderboard />
             <Card className="bg-card/50">
               <CardHeader>
                   <div className="flex items-center gap-3">
