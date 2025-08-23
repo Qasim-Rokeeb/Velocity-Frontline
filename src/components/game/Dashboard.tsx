@@ -6,6 +6,7 @@ import { Timer, ChevronsRight, ShieldAlert, Trophy } from 'lucide-react';
 import Speedometer from "./Speedometer";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import LapProgress from "./LapProgress";
 
 interface DashboardProps {
   speed: number;
@@ -14,6 +15,7 @@ interface DashboardProps {
   bestLap: number;
   collisions: number;
   maxSpeed: number;
+  lapProgress: number;
 }
 
 const formatTime = (time: number) => {
@@ -37,7 +39,7 @@ const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNo
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed }: DashboardProps) {
+export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed, lapProgress }: DashboardProps) {
   const [isNewBestLap, setIsNewBestLap] = useState(false);
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
@@ -52,7 +54,7 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
 
   return (
     <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
-      <CardContent className="p-4">
+      <CardContent className="p-4 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-1 sm:col-span-3 flex items-center justify-center">
             <Speedometer speed={speed} maxSpeed={maxSpeed} />
@@ -69,6 +71,7 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
             <StatCard icon={<ShieldAlert className="h-5 w-5" />} title="Collisions" value={collisions.toString()} />
           </div>
         </div>
+        <LapProgress progress={lapProgress} />
       </CardContent>
     </Card>
   );

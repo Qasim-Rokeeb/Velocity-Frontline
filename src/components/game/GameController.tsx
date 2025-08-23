@@ -49,6 +49,7 @@ export default function GameController() {
   const [collisions, setCollisions] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [selectedCar, setSelectedCar] = useState<Car | null>(carData[0]);
+  const [lapProgress, setLapProgress] = useState(0);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -70,6 +71,7 @@ export default function GameController() {
     setCurrentLap(0);
     setLapTime(0);
     setCollisions(0);
+    setLapProgress(0);
     // Keep best lap across sessions until page reload
     // setBestLap(Infinity) 
     passedCheckpoint.current = false;
@@ -82,6 +84,7 @@ export default function GameController() {
     setCurrentLap(0);
     setLapTime(0);
     setCollisions(0);
+    setLapProgress(0);
     setGameState('countdown');
     setCountdown(3);
   };
@@ -109,6 +112,57 @@ export default function GameController() {
     setCurrentLap(prev => prev + 1);
     setLapTime(0);
   }, [currentLap, lapTime, bestLap]);
+
+  const calculateLapProgress = useCallback((carX: number, carY: number) => {
+    // Calculate angle of car relative to track center
+    const angleRad = Math.atan2(carY - TRACK_CENTER.y, carX - TRACK_CENTER.x);
+    let angleDeg = angleRad * (180 / Math.PI);
+
+    // Normalize angle to be 0-360, where 0 is at the finish line (3 o'clock)
+    if (angleDeg < 0) {
+      angleDeg += 360;
+    }
+
+    // Since the car starts at angle 270 (-90) and moves counter-clockwise,
+    // we need to adjust the calculation.
+    // The start/finish is at 0/360 degrees on the right.
+    // Progress starts at 270 and goes 180, 90, to 0/360.
+    
+    // Remap angle so that start (270) is 0 and end (270 after a full circle) is 100.
+    let progress = 0;
+    if (passedCheckpoint.current) {
+        // From left checkpoint (180 deg) to finish line (0/360 deg)
+        // This is the second half of the lap.
+        progress = 50 + (180 - angleDeg) / 3.6; // 180 deg covers 50%
+    } else {
+        // From finish line (0/360 deg) to left checkpoint (180 deg)
+        // This is the first half of the lap.
+        if (angleDeg >= 270) { // from 270 to 360
+            progress = (360 - angleDeg) / 3.6;
+        } else { // from 0 to 180
+            progress = (360 - 270) / 3.6 + angleDeg / 3.6; // This seems wrong
+            progress = 25 + (180 - angleDeg) / 3.6; // This is also complicated.
+        }
+        
+        // simpler way:
+        if (angleDeg >= 270 && angleDeg <= 360) { // Bottom right quadrant
+            progress = ( (360 - angleDeg) + 90 ) % 360 / 3.6;
+             progress = ( (angleDeg - 270)) / 3.6;
+        } else { // other quadrants
+            progress = (90 + angleDeg) / 3.6;
+        }
+    }
+     // A simpler approach:
+    // start angle is -90 (270). We want this to be 0.
+    // So we add 90 degrees.
+    let adjustedAngle = angleDeg + 90;
+    if (adjustedAngle >= 360) {
+        adjustedAngle -= 360;
+    }
+    // Now angle is 0 to 360, starting from bottom.
+    setLapProgress(adjustedAngle / 3.6);
+
+  }, []);
 
   const gameLoop = useCallback((timestamp: number) => {
     if (lastTimestampRef.current === undefined) {
@@ -156,6 +210,10 @@ export default function GameController() {
         setCollisions(c => c + 1);
       }
 
+      // --- Lap Progress ---
+      calculateLapProgress(x, y);
+
+
       // --- Lap Detection ---
       // Checkpoint on the left side
       if (x < TRACK_CENTER.x - 50) {
@@ -177,7 +235,7 @@ export default function GameController() {
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion]);
+  }, [handleLapCompletion, calculateLapProgress]);
 
 
   useEffect(() => {
@@ -319,6 +377,7 @@ export default function GameController() {
             currentLap={Math.min(currentLap, TOTAL_LAPS)}
             bestLap={bestLap}
             collisions={collisions}
+            lapProgress={lapProgress}
         />
         <div className="flex flex-col gap-2">
             <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>
