@@ -21,7 +21,7 @@ const formatTime = (time: number) => {
 };
 
 const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: string, value: string, unit?: string }) => (
-  <div className="flex flex-col items-center justify-center p-4 bg-background rounded-lg shadow-inner text-center h-full">
+  <div className="flex flex-col items-center justify-center p-4 bg-background/50 rounded-xl shadow-inner text-center h-full border border-border/20">
     <div className="flex items-center gap-2 text-muted-foreground">
       {icon}
       <span className="text-sm font-medium">{title}</span>
@@ -35,7 +35,7 @@ const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: 
 
 export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions }: DashboardProps) {
   return (
-    <Card className="bg-card/50">
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <StatCard icon={<Gauge className="h-5 w-5" />} title="Speed" value={speed.toFixed(0)} unit="km/h" />
