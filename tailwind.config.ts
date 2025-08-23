@@ -104,6 +104,10 @@ export default {
             opacity: '1',
             transform: 'translateY(0)'
           }
+        },
+        'glow': {
+            '0%, 100%': { opacity: '1' },
+            '50%': { opacity: '0.7' },
         }
       },
       animation: {
@@ -111,6 +115,7 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-strong': 'pulse-strong 2s infinite',
         'fade-in-down': 'fade-in-down 0.5s ease-out forwards',
+        'glow': 'glow 1.5s ease-in-out infinite',
       },
     },
   },

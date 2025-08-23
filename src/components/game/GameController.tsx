@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import CarSelection from './CarSelection';
 import { Car, cars as carData } from '@/components/game/CarSprites';
+import RacingLights from './RacingLights';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished';
@@ -190,7 +191,8 @@ export default function GameController() {
               const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
               return () => clearTimeout(timer);
           } else {
-              setGameState('racing');
+              const goTimer = setTimeout(() => setGameState('racing'), 1000); // Show "Go" for 1 sec
+              return () => clearTimeout(goTimer);
           }
       }
   }, [gameState, countdown]);
@@ -232,9 +234,7 @@ export default function GameController() {
               </>
             )}
             {gameState === 'countdown' && (
-              <div key={countdown} className="text-9xl font-headline font-bold text-primary animate-pulse-strong">
-                {countdown > 0 ? countdown : <Flag />}
-              </div>
+                <RacingLights countdown={countdown} />
             )}
           </div>
         )}
@@ -242,7 +242,28 @@ export default function GameController() {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center justify-center gap-2 text-3xl font-headline">
-                <Flag className="w-8 h-8 text-primary animate-pulse-strong" />
+                <svg
+                    className="w-10 h-10 animate-pulse-strong"
+                    viewBox="0 0 100 100"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                >
+                    <defs>
+                        <pattern id="checker" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <rect x="0" y="0" width="10" height="10" fill="white" />
+                        <rect x="10" y="0" width="10" height="10" fill="black" />
+                        <rect x="0" y="10" width="10" height="10" fill="black" />
+                        <rect x="10" y="10" width="10" height="10" fill="white" />
+                        </pattern>
+                    </defs>
+                    <path
+                        d="M10,10 C15,0 20,0 25,10 S35,20 40,10 S50,0 55,10 S65,20 70,10 S80,0 85,10 S95,20 100,10 L100,90 C95,80 90,80 85,90 S75,100 70,90 S60,80 55,90 S45,100 40,90 S30,80 25,90 S15,100 10,90 Z"
+                        fill="url(#checker)"
+                        stroke="black"
+                        strokeWidth="2"
+                    />
+                    <rect x="0" y="10" width="10" height="80" fill="currentColor" />
+                </svg>
                 Race Finished!
               </AlertDialogTitle>
               <AlertDialogDescription className="text-lg text-center">
