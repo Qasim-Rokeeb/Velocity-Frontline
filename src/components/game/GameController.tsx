@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RaceTrack from './RaceTrack';
 import Dashboard from './Dashboard';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCw, Flag, Trophy, CarIcon } from 'lucide-react';
+import { Play, RotateCw, Flag, Trophy, CarIcon, Pause, PlayCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,7 @@ import { Car, cars as carData } from '@/components/game/CarSprites';
 import RacingLights from './RacingLights';
 
 
-type GameState = 'idle' | 'countdown' | 'racing' | 'finished';
+type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
 type CarState = { x: number; y: number; speed: number; angle: number; };
 
 const INITIAL_CAR_STATE: CarState = {
@@ -84,6 +84,14 @@ export default function GameController() {
     setGameState('countdown');
     setCountdown(3);
   };
+
+  const togglePause = () => {
+      if (gameState === 'racing') {
+          setGameState('paused');
+      } else if (gameState === 'paused') {
+          setGameState('racing');
+      }
+  }
 
   const handleLapCompletion = useCallback(() => {
     if (currentLap > 0 && lapTime > 0) {
@@ -172,7 +180,11 @@ export default function GameController() {
 
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => { keys.current[e.key] = true; if(e.key.toLowerCase() === 'r') resetGame() };
+    const handleKeyDown = (e: KeyboardEvent) => { 
+        keys.current[e.key] = true; 
+        if(e.key.toLowerCase() === 'r') resetGame();
+        if(e.key.toLowerCase() === 'p') togglePause();
+    };
     const handleKeyUp = (e: KeyboardEvent) => { keys.current[e.key] = false; };
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -236,6 +248,14 @@ export default function GameController() {
             {gameState === 'countdown' && (
                 <RacingLights countdown={countdown} />
             )}
+            {gameState === 'paused' && (
+                <div className="flex flex-col items-center gap-4">
+                    <h2 className="text-5xl font-headline text-primary">Paused</h2>
+                    <Button onClick={togglePause} size="lg">
+                        <PlayCircle className="mr-2 h-5 w-5" /> Resume
+                    </Button>
+                </div>
+            )}
           </div>
         )}
          <AlertDialog open={gameState === 'finished'}>
@@ -291,10 +311,16 @@ export default function GameController() {
             bestLap={bestLap}
             collisions={collisions}
         />
-        <Button onClick={resetGame} variant="outline" className="h-full">
-            <RotateCw className="mr-2 h-5 w-5"/>
-            Restart
-        </Button>
+        <div className="flex flex-col gap-2">
+            <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>
+                {gameState === 'paused' ? <PlayCircle className="mr-2 h-5 w-5"/> : <Pause className="mr-2 h-5 w-5"/>}
+                {gameState === 'paused' ? 'Resume' : 'Pause'}
+            </Button>
+            <Button onClick={resetGame} variant="outline" className="h-full">
+                <RotateCw className="mr-2 h-5 w-5"/>
+                Restart
+            </Button>
+        </div>
       </div>
     </div>
   );
