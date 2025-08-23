@@ -13,11 +13,14 @@ interface SettingsPanelProps {
     onSteeringSensitivityChange: (value: number) => void;
     accelerationSensitivity: number;
     onAccelerationSensitivityChange: (value: number) => void;
+    brakeStrength: number;
+    onBrakeStrengthChange: (value: number) => void;
 }
 
 export default function SettingsPanel({ 
     steeringSensitivity, onSteeringSensitivityChange,
-    accelerationSensitivity, onAccelerationSensitivityChange
+    accelerationSensitivity, onAccelerationSensitivityChange,
+    brakeStrength, onBrakeStrengthChange
 }: SettingsPanelProps) {
   return (
     <Card className="bg-card/50">
@@ -71,6 +74,27 @@ export default function SettingsPanel({
                     step={0.01}
                     value={[accelerationSensitivity]}
                     onValueChange={(value) => onAccelerationSensitivityChange(value[0])}
+                />
+            </div>
+            <div className="space-y-2">
+                <Tooltip>
+                    <TooltipTrigger className="w-full">
+                        <Label htmlFor="brake-strength" className="flex justify-between items-center">
+                            <span>Brake Strength</span>
+                            <span className="text-xs text-muted-foreground">{brakeStrength.toFixed(2)}</span>
+                        </Label>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Adjust how quickly your car brakes. Higher is stronger.</p>
+                    </TooltipContent>
+                </Tooltip>
+                <Slider
+                    id="brake-strength"
+                    min={0.05}
+                    max={0.2}
+                    step={0.01}
+                    value={[brakeStrength]}
+                    onValueChange={(value) => onBrakeStrengthChange(value[0])}
                 />
             </div>
         </CardContent>

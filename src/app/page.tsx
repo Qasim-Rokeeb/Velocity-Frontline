@@ -29,6 +29,7 @@ const KeyDisplay = ({ children, className }: { children: React.ReactNode, classN
 export default function Home() {
   const [steeringSensitivity, setSteeringSensitivity] = useState(2.5);
   const [accelerationSensitivity, setAccelerationSensitivity] = useState(0.1);
+  const [brakeStrength, setBrakeStrength] = useState(0.1);
 
   return (
     <div className="flex">
@@ -39,6 +40,8 @@ export default function Home() {
                 onSteeringSensitivityChange={setSteeringSensitivity}
                 accelerationSensitivity={accelerationSensitivity}
                 onAccelerationSensitivityChange={setAccelerationSensitivity}
+                brakeStrength={brakeStrength}
+                onBrakeStrengthChange={setBrakeStrength}
             />
             <DifficultyPanel />
             <Leaderboard />
@@ -134,6 +137,7 @@ export default function Home() {
               <GameController 
                 steeringSensitivity={steeringSensitivity} 
                 accelerationSensitivity={accelerationSensitivity}
+                brakeStrength={brakeStrength}
               />
           </div>
         </main>
