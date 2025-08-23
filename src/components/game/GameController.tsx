@@ -18,6 +18,7 @@ import {
 import CarSelection from './CarSelection';
 import { Car, cars as carData } from '@/components/game/CarSprites';
 import RacingLights from './RacingLights';
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -235,29 +236,37 @@ export default function GameController() {
   return (
     <div className="space-y-4">
       <div className="relative aspect-[16/10] bg-blue-900/50 rounded-xl shadow-2xl overflow-hidden border-4 border-card">
-        {gameState !== 'racing' && gameState !== 'finished' && (
-          <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white backdrop-blur-sm">
-            {gameState === 'idle' && (
-              <>
-                <CarSelection onSelectCar={setSelectedCar} selectedCar={selectedCar} />
-                <Button onClick={startGame} size="lg" className="mt-8 animate-pulse-strong" disabled={!selectedCar}>
-                  <Play className="mr-2 h-5 w-5" /> Start Race
-                </Button>
-              </>
-            )}
-            {gameState === 'countdown' && (
-                <RacingLights countdown={countdown} />
-            )}
-            {gameState === 'paused' && (
-                <div className="flex flex-col items-center gap-4">
-                    <h2 className="text-5xl font-headline text-primary animate-pulse">Paused</h2>
-                    <Button onClick={togglePause} size="lg">
-                        <PlayCircle className="mr-2 h-5 w-5" /> Resume
+        <AnimatePresence>
+            {gameState !== 'racing' && gameState !== 'finished' && (
+            <motion.div
+                className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white backdrop-blur-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                {gameState === 'idle' && (
+                <>
+                    <CarSelection onSelectCar={setSelectedCar} selectedCar={selectedCar} />
+                    <Button onClick={startGame} size="lg" className="mt-8 animate-pulse-strong" disabled={!selectedCar}>
+                    <Play className="mr-2 h-5 w-5" /> Start Race
                     </Button>
-                </div>
+                </>
+                )}
+                {gameState === 'countdown' && (
+                    <RacingLights countdown={countdown} />
+                )}
+                {gameState === 'paused' && (
+                    <div className="flex flex-col items-center gap-4">
+                        <h2 className="text-5xl font-headline text-primary animate-pulse">Paused</h2>
+                        <Button onClick={togglePause} size="lg">
+                            <PlayCircle className="mr-2 h-5 w-5" /> Resume
+                        </Button>
+                    </div>
+                )}
+            </motion.div>
             )}
-          </div>
-        )}
+        </AnimatePresence>
          <AlertDialog open={gameState === 'finished'}>
           <AlertDialogContent>
             <AlertDialogHeader>
