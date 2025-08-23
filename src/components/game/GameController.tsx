@@ -5,7 +5,17 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RaceTrack from './RaceTrack';
 import Dashboard from './Dashboard';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCw, Flag } from 'lucide-react';
+import { Play, RotateCw, Flag, Trophy } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished';
 type CarState = { x: number; y: number; speed: number; angle: number; };
@@ -22,6 +32,7 @@ const TRACK_CENTER = { x: 400, y: 250 };
 const TRACK_OUTER = { rx: 350, ry: 200 };
 const TRACK_INNER = { rx: 250, ry: 100 };
 const FINISH_LINE = { x: 525, y_start: 150, y_end: 350 };
+const TOTAL_LAPS = 3;
 
 
 export default function GameController() {
@@ -53,6 +64,8 @@ export default function GameController() {
     setCurrentLap(0);
     setLapTime(0);
     setCollisions(0);
+    // Keep best lap across sessions until page reload
+    // setBestLap(Infinity) 
     passedCheckpoint.current = false;
     if (lapTimerRef.current) clearInterval(lapTimerRef.current);
   }, []);
@@ -69,6 +82,12 @@ export default function GameController() {
         setBestLap(lapTime);
       }
     }
+
+    if (currentLap + 1 > TOTAL_LAPS) {
+      setGameState('finished');
+      return;
+    }
+
     setCurrentLap(prev => prev + 1);
     setLapTime(0);
   }, [currentLap, lapTime, bestLap]);
@@ -176,7 +195,10 @@ export default function GameController() {
         setLapTime(t => t + 10);
       }, 10);
       if (currentLap === 0) {
-        handleLapCompletion();
+        // Start lap 1
+        setCurrentLap(1);
+        setLapTime(0);
+        passedCheckpoint.current = false;
       }
     } else {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
@@ -186,12 +208,12 @@ export default function GameController() {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
       if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     }
-  }, [gameState, gameLoop, handleLapCompletion, currentLap]);
+  }, [gameState, gameLoop]);
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-[16/10] bg-gray-800 rounded-xl shadow-2xl overflow-hidden border-4 border-card">
-        {gameState !== 'racing' && (
+      <div className="relative aspect-[16/10] bg-blue-900/50 rounded-xl shadow-2xl overflow-hidden border-4 border-card">
+        {gameState !== 'racing' && gameState !== 'finished' && (
           <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white backdrop-blur-sm">
             {gameState === 'idle' && (
               <>
@@ -206,23 +228,35 @@ export default function GameController() {
                 {countdown > 0 ? countdown : <Flag />}
               </div>
             )}
-            {gameState === 'finished' && (
-               <>
-                <h2 className="text-6xl font-headline font-bold">Finished!</h2>
-                <p className="text-xl mt-4">Your best lap was {formatTime(bestLap)}</p>
-                <Button onClick={startGame} size="lg" className="mt-8">
-                  <RotateCw className="mr-2 h-5 w-5" /> Race Again
-                </Button>
-              </>
-            )}
           </div>
         )}
+         <AlertDialog open={gameState === 'finished'}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-3xl font-headline">
+                <Trophy className="w-8 h-8 text-yellow-400" />
+                Race Finished!
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-lg">
+                Congratulations! You completed all {TOTAL_LAPS} laps.
+                <div className="font-mono text-xl text-foreground my-4">
+                    Best Lap: {formatTime(bestLap)}
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={startGame} className="w-full">
+                <RotateCw className="mr-2 h-5 w-5" /> Race Again
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <RaceTrack carPosition={carState} carAngle={carState.angle} />
       </div>
       <Dashboard
         speed={Math.abs(carState.speed * 20)}
         lapTime={lapTime}
-        currentLap={currentLap}
+        currentLap={Math.min(currentLap, TOTAL_LAPS)}
         bestLap={bestLap}
         collisions={collisions}
       />
