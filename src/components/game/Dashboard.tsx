@@ -7,6 +7,7 @@ import Speedometer from "./Speedometer";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import LapProgress from "./LapProgress";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DashboardProps {
   speed: number;
@@ -44,16 +45,31 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
   useEffect(() => {
-    if (bestLap < prevBestLap) {
+    if (bestLap < prevBestLap && bestLap !== Infinity) {
       setIsNewBestLap(true);
-      const timer = setTimeout(() => setIsNewBestLap(false), 2000); // Animation duration
+      const timer = setTimeout(() => setIsNewBestLap(false), 3000); // Banner display duration
       return () => clearTimeout(timer);
     }
-    setPrevBestLap(bestLap);
+    if(bestLap !== Infinity) {
+      setPrevBestLap(bestLap);
+    }
   }, [bestLap, prevBestLap]);
 
   return (
-    <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
+    <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl overflow-hidden">
+      <AnimatePresence>
+        {isNewBestLap && (
+            <motion.div
+                initial={{ y: '-100%' }}
+                animate={{ y: '0%' }}
+                exit={{ y: '-100%' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute top-0 left-0 right-0 bg-primary/80 text-primary-foreground text-center p-2 z-10 font-headline text-lg"
+            >
+                New Record!
+            </motion.div>
+        )}
+      </AnimatePresence>
       <CardContent className="p-4 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-1 sm:col-span-3 flex items-center justify-center">
