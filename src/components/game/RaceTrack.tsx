@@ -34,6 +34,7 @@ interface RaceTrackProps {
   touchControlsRef: React.MutableRefObject<{ [key: string]: boolean }>;
   joystickDataRef: React.MutableRefObject<{ angle: number; distance: number }>;
   weather: Weather;
+  fog: boolean;
 }
 
 const CarSprite = ({ selectedCar, angle, speed, color, weather }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather }) => {
@@ -49,7 +50,7 @@ const CarSprite = ({ selectedCar, angle, speed, color, weather }: { selectedCar:
 }
 
 
-export default function RaceTrack({ carState, selectedCar, carColor, sparks, onSparkAnimationComplete, touchControlsRef, joystickDataRef, weather }: RaceTrackProps) {
+export default function RaceTrack({ carState, selectedCar, carColor, sparks, onSparkAnimationComplete, touchControlsRef, joystickDataRef, weather, fog }: RaceTrackProps) {
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden relative">
         <MiniMap carPosition={carState} />
@@ -57,6 +58,7 @@ export default function RaceTrack({ carState, selectedCar, carColor, sparks, onS
         {weather === 'rainy' && <RainEffect />}
         {weather === 'night' && <div className="absolute inset-0 bg-black/70 z-0" />}
         {weather === 'rainy' && <div className="absolute inset-0 bg-blue-900/40 z-0" />}
+        {fog && <div className="absolute inset-0 bg-white/30 backdrop-blur-sm z-20 pointer-events-none" />}
 
         <svg width="100%" height="100%" viewBox="0 0 800 500" className="relative z-10">
             <defs>

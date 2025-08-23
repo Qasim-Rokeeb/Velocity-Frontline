@@ -63,6 +63,7 @@ interface GameControllerProps {
     maxSpeed: number;
     tireGrip: number;
     weather: Weather;
+    fog: boolean;
 }
 
 
@@ -81,7 +82,8 @@ export default function GameController({
     onDifficultyChange,
     maxSpeed,
     tireGrip,
-    weather
+    weather,
+    fog
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -524,6 +526,7 @@ export default function GameController({
             touchControlsRef={keys}
             joystickDataRef={joystickDataRef}
             weather={weather}
+            fog={fog}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
