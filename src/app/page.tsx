@@ -38,6 +38,7 @@ export default function Home() {
     left: 'a',
     right: 'd',
   });
+  const [carColor, setCarColor] = useState('hsl(var(--primary))');
 
   return (
     <div className="flex">
@@ -155,6 +156,8 @@ export default function Home() {
                 autoAccelerate={autoAccelerate}
                 steeringAssist={steeringAssist}
                 keybindings={keybindings}
+                carColor={carColor}
+                onCarColorChange={setCarColor}
               />
           </div>
         </main>

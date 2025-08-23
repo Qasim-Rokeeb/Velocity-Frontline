@@ -14,17 +14,23 @@ import {
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import { Car, cars, ViperCar, ChallengerCar, PorscheCar, LamboCar } from '@/components/game/CarSprites';
+import ColorPicker from './ColorPicker';
 
 
 interface CarSelectionProps {
   onSelectCar: (car: Car) => void;
   selectedCar: Car | null;
+  carColor: string;
+  onCarColorChange: (color: string) => void;
 }
 
-export default function CarSelection({ onSelectCar, selectedCar }: CarSelectionProps) {
+export default function CarSelection({ onSelectCar, selectedCar, carColor, onCarColorChange }: CarSelectionProps) {
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <h2 className="text-4xl font-headline text-center mb-6">Choose Your Ride</h2>
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center space-y-6">
+      <div>
+          <h2 className="text-4xl font-headline text-center mb-2">Choose Your Ride</h2>
+          <p className="text-center text-muted-foreground">Select a car and a color to begin.</p>
+      </div>
       <Carousel
         opts={{
           align: 'start',
@@ -43,10 +49,10 @@ export default function CarSelection({ onSelectCar, selectedCar }: CarSelectionP
                 >
                   <CardContent className="relative flex flex-col items-center justify-center p-4">
                     <div className="w-full h-40 flex items-center justify-center mb-4">
-                        {car.id === 'viper' && <ViperCar angle={0} />}
-                        {car.id === 'challenger' && <ChallengerCar angle={0} />}
-                        {car.id === 'porsche' && <PorscheCar angle={0} />}
-                        {car.id === 'lambo' && <LamboCar angle={0} />}
+                        {car.id === 'viper' && <ViperCar angle={0} speed={0} color={carColor} />}
+                        {car.id === 'challenger' && <ChallengerCar angle={0} speed={0} color={carColor} />}
+                        {car.id === 'porsche' && <PorscheCar angle={0} speed={0} color={carColor} />}
+                        {car.id === 'lambo' && <LamboCar angle={0} speed={0} color={carColor} />}
                     </div>
                     <h3 className="text-lg font-bold text-foreground">{car.name}</h3>
                     {selectedCar?.id === car.id && (
@@ -63,6 +69,7 @@ export default function CarSelection({ onSelectCar, selectedCar }: CarSelectionP
         <CarouselPrevious className="hidden sm:flex" />
         <CarouselNext className="hidden sm:flex" />
       </Carousel>
+      <ColorPicker selectedColor={carColor} onColorChange={onCarColorChange} />
     </div>
   );
 }

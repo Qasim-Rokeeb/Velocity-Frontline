@@ -23,26 +23,27 @@ interface CarState {
 interface RaceTrackProps {
   carState: CarState,
   selectedCar: Car | null;
+  carColor: string;
   sparks: Spark[];
   onSparkAnimationComplete: (id: number) => void;
   touchControlsRef: React.MutableRefObject<{ [key: string]: boolean }>;
   joystickDataRef: React.MutableRefObject<{ angle: number; distance: number }>;
 }
 
-const CarSprite = ({ selectedCar, angle, speed }: { selectedCar: Car | null, angle: number, speed: number }) => {
+const CarSprite = ({ selectedCar, angle, speed, color }: { selectedCar: Car | null, angle: number, speed: number, color: string }) => {
     if (!selectedCar) return null;
 
     switch(selectedCar.id) {
-        case 'viper': return <ViperCar angle={angle} speed={speed} />;
-        case 'challenger': return <ChallengerCar angle={angle} speed={speed} />;
-        case 'porsche': return <PorscheCar angle={angle} speed={speed} />;
-        case 'lambo': return <LamboCar angle={angle} speed={speed} />;
-        default: return <ViperCar angle={angle} speed={speed} />;
+        case 'viper': return <ViperCar angle={angle} speed={speed} color={color} />;
+        case 'challenger': return <ChallengerCar angle={angle} speed={speed} color={color} />;
+        case 'porsche': return <PorscheCar angle={angle} speed={speed} color={color} />;
+        case 'lambo': return <LamboCar angle={angle} speed={speed} color={color} />;
+        default: return <ViperCar angle={angle} speed={speed} color={color} />;
     }
 }
 
 
-export default function RaceTrack({ carState, selectedCar, sparks, onSparkAnimationComplete, touchControlsRef, joystickDataRef }: RaceTrackProps) {
+export default function RaceTrack({ carState, selectedCar, carColor, sparks, onSparkAnimationComplete, touchControlsRef, joystickDataRef }: RaceTrackProps) {
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden">
         <MiniMap carPosition={carState} />
@@ -117,7 +118,7 @@ export default function RaceTrack({ carState, selectedCar, sparks, onSparkAnimat
           transform: `translate(-50%, -50%)`,
         }}
       >
-        <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} />
+        <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} color={carColor} />
       </div>
 
        {sparks.map(spark => (

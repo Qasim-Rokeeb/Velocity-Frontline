@@ -50,6 +50,8 @@ interface GameControllerProps {
     autoAccelerate: boolean;
     steeringAssist: boolean;
     keybindings: Keybindings;
+    carColor: string;
+    onCarColorChange: (color: string) => void;
 }
 
 
@@ -60,6 +62,8 @@ export default function GameController({
     autoAccelerate, 
     steeringAssist,
     keybindings,
+    carColor,
+    onCarColorChange,
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
@@ -381,12 +385,17 @@ export default function GameController({
                 transition={{ duration: 0.5 }}
             >
                 {gameState === 'idle' && (
-                <>
-                    <CarSelection onSelectCar={setSelectedCar} selectedCar={selectedCar} />
-                    <Button onClick={startGame} size="lg" className="mt-8 animate-pulse-strong" disabled={!selectedCar}>
+                <div className="flex flex-col items-center gap-8">
+                    <CarSelection 
+                        onSelectCar={setSelectedCar} 
+                        selectedCar={selectedCar} 
+                        carColor={carColor}
+                        onCarColorChange={onCarColorChange}
+                    />
+                    <Button onClick={startGame} size="lg" className="animate-pulse-strong" disabled={!selectedCar}>
                     <Play className="mr-2 h-5 w-5" /> Start Race
                     </Button>
-                </>
+                </div>
                 )}
                 {gameState === 'countdown' && (
                     <RacingLights countdown={countdown} />
@@ -447,6 +456,7 @@ export default function GameController({
         <RaceTrack 
             carState={carState} 
             selectedCar={selectedCar} 
+            carColor={carColor}
             sparks={sparks}
             onSparkAnimationComplete={handleRemoveSpark}
             touchControlsRef={keys}
