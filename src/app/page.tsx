@@ -2,9 +2,9 @@ import GameController from '@/components/game/GameController';
 import DifficultyPanel from '@/components/game/DifficultyPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/game/Logo';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -20,11 +20,12 @@ const KeyDisplay = ({ children, className }: { children: React.ReactNode, classN
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
-      <header className="text-center space-y-4">
+      <header className="w-full max-w-7xl flex justify-between items-center text-center space-y-4">
         <Logo />
-        <p className="text-muted-foreground font-body max-w-2xl text-lg">
+        <p className="text-muted-foreground font-body max-w-2xl text-lg hidden md:block">
           The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
         </p>
+        <ThemeToggle />
       </header>
       
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
