@@ -2,7 +2,8 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Gauge, Timer, ChevronsRight, ShieldAlert, Trophy } from 'lucide-react';
+import { Timer, ChevronsRight, ShieldAlert, Trophy } from 'lucide-react';
+import Speedometer from "./Speedometer";
 
 interface DashboardProps {
   speed: number;
@@ -10,6 +11,7 @@ interface DashboardProps {
   currentLap: number;
   bestLap: number;
   collisions: number;
+  maxSpeed: number;
 }
 
 const formatTime = (time: number) => {
@@ -33,16 +35,20 @@ const StatCard = ({ icon, title, value, unit }: { icon: React.ReactNode, title: 
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions }: DashboardProps) {
+export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed }: DashboardProps) {
   return (
     <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          <StatCard icon={<Gauge className="h-5 w-5" />} title="Speed" value={speed.toFixed(0)} unit="km/h" />
-          <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
-          <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
-          <StatCard icon={<Trophy className="h-5 w-5" />} title="Best Lap" value={formatTime(bestLap)} />
-          <StatCard icon={<ShieldAlert className="h-5 w-5" />} title="Collisions" value={collisions.toString()} />
+          <div className="lg:col-span-1 sm:col-span-3 flex items-center justify-center">
+            <Speedometer speed={speed} maxSpeed={maxSpeed} />
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 col-span-1 sm:col-span-3 lg:col-span-4 gap-4">
+            <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
+            <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
+            <StatCard icon={<Trophy className="h-5 w-5" />} title="Best Lap" value={formatTime(bestLap)} />
+            <StatCard icon={<ShieldAlert className="h-5 w-5" />} title="Collisions" value={collisions.toString()} />
+          </div>
         </div>
       </CardContent>
     </Card>

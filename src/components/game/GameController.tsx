@@ -35,6 +35,7 @@ const TRACK_OUTER = { rx: 350, ry: 200 };
 const TRACK_INNER = { rx: 250, ry: 100 };
 const FINISH_LINE = { x: 525, y_start: 150, y_end: 350 };
 const TOTAL_LAPS = 3;
+const MAX_SPEED_KMH = 240;
 
 
 export default function GameController() {
@@ -259,7 +260,8 @@ export default function GameController() {
       </div>
       <div className="flex items-start gap-4">
         <Dashboard
-            speed={Math.abs(carState.speed * 20)}
+            speed={Math.abs(carState.speed * (MAX_SPEED_KMH / 5))}
+            maxSpeed={MAX_SPEED_KMH}
             lapTime={lapTime}
             currentLap={Math.min(currentLap, TOTAL_LAPS)}
             bestLap={bestLap}
