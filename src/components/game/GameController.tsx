@@ -391,8 +391,7 @@ export default function GameController() {
           </AlertDialogContent>
         </AlertDialog>
         <RaceTrack 
-            carPosition={carState} 
-            carAngle={carState.angle} 
+            carState={carState} 
             selectedCar={selectedCar} 
             sparks={sparks}
             onSparkAnimationComplete={handleRemoveSpark}

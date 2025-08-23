@@ -12,31 +12,37 @@ interface Spark {
     y: number;
 }
 
+interface CarState {
+    x: number;
+    y: number;
+    speed: number;
+    angle: number;
+}
+
 interface RaceTrackProps {
-  carPosition: { x: number; y: number };
-  carAngle: number;
+  carState: CarState,
   selectedCar: Car | null;
   sparks: Spark[];
   onSparkAnimationComplete: (id: number) => void;
 }
 
-const CarSprite = ({ selectedCar, angle }: { selectedCar: Car | null, angle: number }) => {
+const CarSprite = ({ selectedCar, angle, speed }: { selectedCar: Car | null, angle: number, speed: number }) => {
     if (!selectedCar) return null;
 
     switch(selectedCar.id) {
-        case 'viper': return <ViperCar angle={angle} />;
-        case 'challenger': return <ChallengerCar angle={angle} />;
-        case 'porsche': return <PorscheCar angle={angle} />;
-        case 'lambo': return <LamboCar angle={angle} />;
-        default: return <ViperCar angle={angle} />;
+        case 'viper': return <ViperCar angle={angle} speed={speed} />;
+        case 'challenger': return <ChallengerCar angle={angle} speed={speed} />;
+        case 'porsche': return <PorscheCar angle={angle} speed={speed} />;
+        case 'lambo': return <LamboCar angle={angle} speed={speed} />;
+        default: return <ViperCar angle={angle} speed={speed} />;
     }
 }
 
 
-export default function RaceTrack({ carPosition, carAngle, selectedCar, sparks, onSparkAnimationComplete }: RaceTrackProps) {
+export default function RaceTrack({ carState, selectedCar, sparks, onSparkAnimationComplete }: RaceTrackProps) {
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden">
-        <MiniMap carPosition={carPosition} />
+        <MiniMap carPosition={carState} />
       <svg width="100%" height="100%" viewBox="0 0 800 500">
         <defs>
           <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -102,12 +108,12 @@ export default function RaceTrack({ carPosition, carAngle, selectedCar, sparks, 
       <div
         className="absolute"
         style={{
-          left: `${carPosition.x}px`,
-          top: `${carPosition.y}px`,
+          left: `${carState.x}px`,
+          top: `${carState.y}px`,
           transform: `translate(-50%, -50%)`,
         }}
       >
-        <CarSprite selectedCar={selectedCar} angle={carAngle} />
+        <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} />
       </div>
 
        {sparks.map(spark => (
