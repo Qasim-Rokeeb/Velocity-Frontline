@@ -19,7 +19,7 @@ const KeyDisplay = ({ children, className }: { children: React.ReactNode, classN
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-card to-background">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
       <header className="text-center space-y-4">
         <Logo />
         <p className="text-muted-foreground font-body max-w-2xl text-lg">
