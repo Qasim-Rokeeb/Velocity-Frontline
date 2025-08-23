@@ -1,5 +1,7 @@
+// src/app/page.tsx
+'use client';
 
-
+import { useState } from 'react';
 import GameController from '@/components/game/GameController';
 import DifficultyPanel from '@/components/game/DifficultyPanel';
 import Leaderboard from '@/components/game/Leaderboard';
@@ -11,6 +13,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import MusicToggle from '@/components/MusicToggle';
 import { Separator } from '@/components/ui/separator';
+import SettingsPanel from '@/components/game/SettingsPanel';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -24,10 +27,16 @@ const KeyDisplay = ({ children, className }: { children: React.ReactNode, classN
 
 
 export default function Home() {
+  const [steeringSensitivity, setSteeringSensitivity] = useState(2.5);
+
   return (
     <div className="flex">
       <Sidebar collapsible="icon">
         <SidebarContent className="space-y-4">
+            <SettingsPanel 
+                steeringSensitivity={steeringSensitivity}
+                onSteeringSensitivityChange={setSteeringSensitivity}
+            />
             <DifficultyPanel />
             <Leaderboard />
             <Card className="bg-card/50">
@@ -119,7 +128,7 @@ export default function Home() {
           </header>
           
           <div className="w-full max-w-7xl">
-              <GameController />
+              <GameController steeringSensitivity={steeringSensitivity} />
           </div>
         </main>
       </SidebarInset>

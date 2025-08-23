@@ -42,7 +42,12 @@ const TOTAL_LAPS = 3;
 const MAX_SPEED_KMH = 240;
 
 
-export default function GameController() {
+interface GameControllerProps {
+    steeringSensitivity: number;
+}
+
+
+export default function GameController({ steeringSensitivity }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
   const [lapTime, setLapTime] = useState(0);
@@ -136,37 +141,8 @@ export default function GameController() {
     if (angleDeg < 0) {
       angleDeg += 360;
     }
-
-    // Since the car starts at angle 270 (-90) and moves counter-clockwise,
-    // we need to adjust the calculation.
-    // The start/finish is at 0/360 degrees on the right.
-    // Progress starts at 270 and goes 180, 90, to 0/360.
     
-    // Remap angle so that start (270) is 0 and end (270 after a full circle) is 100.
-    let progress = 0;
-    if (passedCheckpoint.current) {
-        // From left checkpoint (180 deg) to finish line (0/360 deg)
-        // This is the second half of the lap.
-        progress = 50 + (180 - angleDeg) / 3.6; // 180 deg covers 50%
-    } else {
-        // From finish line (0/360 deg) to left checkpoint (180 deg)
-        // This is the first half of the lap.
-        if (angleDeg >= 270) { // from 270 to 360
-            progress = (360 - angleDeg) / 3.6;
-        } else { // from 0 to 180
-            progress = (360 - 270) / 3.6 + angleDeg / 3.6; // This seems wrong
-            progress = 25 + (180 - angleDeg) / 3.6; // This is also complicated.
-        }
-        
-        // simpler way:
-        if (angleDeg >= 270 && angleDeg <= 360) { // Bottom right quadrant
-            progress = ( (360 - angleDeg) + 90 ) % 360 / 3.6;
-             progress = ( (angleDeg - 270)) / 3.6;
-        } else { // other quadrants
-            progress = (90 + angleDeg) / 3.6;
-        }
-    }
-     // A simpler approach:
+    // A simpler approach:
     // start angle is -90 (270). We want this to be 0.
     // So we add 90 degrees.
     let adjustedAngle = angleDeg + 90;
@@ -194,7 +170,7 @@ export default function GameController() {
 
       // --- Controls ---
       const acceleration = 0.1;
-      const turnSpeed = 2.5;
+      const turnSpeed = steeringSensitivity;
       const friction = 0.97;
       const maxSpeed = 5;
       const maxReverseSpeed = -2;
@@ -263,7 +239,7 @@ export default function GameController() {
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [handleLapCompletion, calculateLapProgress]);
+  }, [handleLapCompletion, calculateLapProgress, steeringSensitivity]);
 
 
   useEffect(() => {
