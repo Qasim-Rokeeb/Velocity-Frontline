@@ -123,6 +123,7 @@ Each car has:
 - **Modded tracks** and **community-designed levels**
 - Real-time “ghost” racing against friends
 - Smart contract XP tracking (if moving onchain)
+- Allow setup on warpcast
 
 ---
 
