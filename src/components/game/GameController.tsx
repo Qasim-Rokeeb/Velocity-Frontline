@@ -167,8 +167,8 @@ export default function GameController({
     setCarHealth(100);
     setSparks([]);
     setTireMarks([]);
-    stopReplay();
     if (isRestart) {
+        stopReplay();
         setLapHistory([]);
         setBestLap(Infinity);
         setBestLapData(null);
@@ -295,7 +295,7 @@ export default function GameController({
     lastTimestampRef.current = timestamp;
     
     // Update lap time
-    if (lapStartTimeRef.current > 0) {
+    if (lapStartTimeRef.current > 0 && gameState === 'racing') {
       setLapTime(timestamp - lapStartTimeRef.current);
     }
 
@@ -498,7 +498,7 @@ export default function GameController({
         return { x: newX, y: newY, angle: newAngle };
     });
 
-  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame]);
+  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame, gameState]);
 
 
   const startReplay = useCallback((lapData: CarState[]) => {
@@ -600,7 +600,7 @@ export default function GameController({
             )}
         </AnimatePresence>
         <AnimatePresence>
-            {gameState !== 'racing' && gameState !== 'finished' && (
+            {(gameState !== 'racing' && gameState !== 'finished') && (
             <motion.div
                 className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white backdrop-blur-sm"
                 initial={{ opacity: 0 }}
@@ -730,6 +730,7 @@ export default function GameController({
                     maxSpeed={maxSpeed}
                     lapTime={lapTime}
                     currentLap={Math.min(currentLap, TOTAL_LAPS)}
+                    totalLaps={TOTAL_LAPS}
                     bestLap={bestLap}
                     collisions={collisions}
                     lapProgress={lapProgress}

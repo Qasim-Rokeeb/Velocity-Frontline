@@ -1,3 +1,4 @@
+
 // src/components/game/Dashboard.tsx
 'use client';
 
@@ -16,6 +17,7 @@ interface DashboardProps {
   speed: number;
   lapTime: number;
   currentLap: number;
+  totalLaps: number;
   bestLap: number;
   collisions: number;
   maxSpeed: number;
@@ -44,7 +46,7 @@ const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNo
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisions, maxSpeed, lapProgress, carHealth }: DashboardProps) {
+export default function Dashboard({ speed, lapTime, currentLap, totalLaps, bestLap, collisions, maxSpeed, lapProgress, carHealth }: DashboardProps) {
   const [isNewBestLap, setIsNewBestLap] = useState(false);
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
@@ -93,7 +95,7 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
             <Tooltip>
                 <TooltipTrigger asChild>
                     <div>
-                        <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={currentLap.toString()} />
+                        <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={`${currentLap} / ${totalLaps}`} />
                     </div>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -122,7 +124,7 @@ export default function Dashboard({ speed, lapTime, currentLap, bestLap, collisi
                     </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>Number of times you&apos;ve hit a wall.</p>
+                    <p>Number of times you've hit a wall.</p>
                 </TooltipContent>
             </Tooltip>
           </div>
