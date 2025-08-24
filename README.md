@@ -16,6 +16,7 @@
 - Every 24 hours, a new track is generated with unique difficulty.
 - Daily winners are shown on the **Frontline Leaderboard**.
 - XP and streaks fuel your rise from **Rookie** to **Legend**.
+- Get Ready for exclusive fun.
 
 ---
 
