@@ -155,4 +155,4 @@ Good first issues:
 
 ## 🙋‍♂️ Support or Feedback
 
-Send me a message on [Warpcast](https://warpcast.com/) or [Twitter](https://x.com/) — I’d love to hear how fast you are .
+Send me a message on [Farcaster](https://warpcast.com/) or [X(formerly twitter)](https://x.com/) — I’d love to hear how fast you are .
