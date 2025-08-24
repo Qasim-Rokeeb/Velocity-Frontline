@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export default function Logo() {
@@ -33,7 +34,7 @@ export default function Logo() {
           letterSpacing="2"
           className="uppercase"
         >
-          Velocity Frontline
+          Nitro Rush
         </text>
       </svg>
     </div>

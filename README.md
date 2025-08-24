@@ -1,7 +1,7 @@
+md
+# 🏁 Nitro Rush
 
-# 🏁 Velocity Frontline
-
-**Velocity Frontline** is a fast-paced, social-first, car racing mini-game built on **Farcaster Frames**. Compete in daily sprints, choose your vehicle, and race against your frens in time-based duels — all within a cast.
+**Nitro Rush** is a fast-paced, social-first, car racing mini-game built on **Farcaster Frames**. Compete in daily sprints, choose your vehicle, and race against your frens in time-based duels — all within a cast.
 
 > _"Start your engines. Share your frame. Own the track."_
 
@@ -156,4 +156,3 @@ Good first issues:
 ## 🙋‍♂️ Support or Feedback
 
 Send me a message on [Warpcast](https://warpcast.com/) or [Twitter](https://twitter.com/) — I’d love to hear how fast you are 🏎️💨
-```
