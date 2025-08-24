@@ -20,6 +20,7 @@ import WeatherToggle, { Weather } from '@/components/game/WeatherToggle';
 import FogToggle from '@/components/game/FogToggle';
 import ZoomToggle from '@/components/game/ZoomToggle';
 import CameraToggle, { CameraMode } from '@/components/game/CameraToggle';
+import Footer from '@/components/game/Footer';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -152,8 +153,8 @@ export default function Home() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 lg:p-8 space-y-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
-          <header className="w-full max-w-7xl flex justify-between items-center text-center space-y-4">
+        <main className="flex flex-col items-center justify-between min-h-screen bg-background text-foreground p-4 lg:p-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
+          <header className="w-full max-w-7xl flex justify-between items-center text-center">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <Logo />
@@ -169,7 +170,7 @@ export default function Home() {
             </div>
           </header>
           
-          <div className="w-full max-w-7xl">
+          <div className="w-full max-w-7xl my-8">
               <GameController 
                 steeringSensitivity={steeringSensitivity} 
                 accelerationSensitivity={accelerationSensitivity}
@@ -191,6 +192,7 @@ export default function Home() {
                 cameraMode={cameraMode}
               />
           </div>
+          <Footer />
         </main>
       </SidebarInset>
     </div>
