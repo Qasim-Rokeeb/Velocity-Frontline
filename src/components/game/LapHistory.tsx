@@ -59,7 +59,7 @@ export default function LapHistory({ lapData, onReplayLap }: LapHistoryProps) {
             </div>
         </CardHeader>
         <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {lapData.map((lap, index) => {
                 const medal = getMedalForTime(lap.time);
                 return (

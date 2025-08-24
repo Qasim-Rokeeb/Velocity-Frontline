@@ -100,8 +100,8 @@ export default function Dashboard({
         )}
       </AnimatePresence>
       <CardContent className="p-4 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-          <div className="lg:col-span-1 sm:col-span-4 flex flex-col items-center justify-center gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="md:col-span-1 flex flex-col items-center justify-center gap-2">
             <Speedometer speed={speed} maxSpeed={maxSpeed} />
             <Button 
               onClick={onPitStop} 
@@ -114,10 +114,10 @@ export default function Dashboard({
               {isPitting ? 'Pitting...' : 'Pit Stop'}
             </Button>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-7 col-span-1 sm:col-span-4 lg:col-span-7 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 md:col-span-3 gap-4">
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div>
+                    <div className="xl:col-span-1">
                         <StatCard icon={<Timer className="h-5 w-5" />} title="Lap Time" value={formatTime(lapTime)} />
                     </div>
                 </TooltipTrigger>
@@ -127,7 +127,7 @@ export default function Dashboard({
             </Tooltip>
              <Tooltip>
                 <TooltipTrigger asChild>
-                    <div>
+                    <div className="xl:col-span-1">
                         <StatCard icon={<Clock className="h-5 w-5" />} title="Total Time" value={formatTime(totalTime)} />
                     </div>
                 </TooltipTrigger>
@@ -137,17 +137,7 @@ export default function Dashboard({
             </Tooltip>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div>
-                        <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={`${currentLap} / ${totalLaps}`} />
-                    </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Your current lap number.</p>
-                </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <div>
+                    <div className="xl:col-span-2">
                         <StatCard
                             icon={<Trophy className="h-5 w-5" />}
                             title="Best Lap"
@@ -158,6 +148,16 @@ export default function Dashboard({
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>Your fastest lap time in this session.</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard icon={<ChevronsRight className="h-5 w-5" />} title="Lap" value={`${currentLap} / ${totalLaps}`} />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Your current lap number.</p>
                 </TooltipContent>
             </Tooltip>
             <Tooltip>
