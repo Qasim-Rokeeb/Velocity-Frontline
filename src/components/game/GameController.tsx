@@ -25,6 +25,7 @@ import { Keybindings } from './SettingsPanel';
 import { Difficulty } from './DifficultySelector';
 import { Weather } from './WeatherToggle';
 import { CameraMode } from './CameraToggle';
+import { TireMark } from './TireMarks';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
@@ -113,6 +114,7 @@ export default function GameController({
   const [carHealth, setCarHealth] = useState(100);
   const [sparks, setSparks] = useState<Spark[]>([]);
   const [isAccelerating, setIsAccelerating] = useState(false);
+  const [tireMarks, setTireMarks] = useState<TireMark[]>([]);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -148,6 +150,7 @@ export default function GameController({
     setLapHistory([]);
     setCarHealth(100);
     setSparks([]);
+    setTireMarks([]);
     // Keep best lap across sessions until page reload
     // setBestLap(Infinity) 
     passedCheckpoint.current = false;
@@ -167,6 +170,7 @@ export default function GameController({
     setLapHistory([]);
     setCarHealth(100);
     setSparks([]);
+    setTireMarks([]);
     setGameState('countdown');
     setCountdown(3);
   };
@@ -320,6 +324,21 @@ export default function GameController({
           if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
           // Add a little random angle wobble
           angle += (Math.random() - 0.5) * 2;
+
+          // Add tire mark
+          const rad = (angle - 90) * (Math.PI / 180);
+          const wheelOffset = 5; // Distance of wheels from car center
+          const rearWheelDist = 10;
+          const rearLeft = {
+              x: x - Math.cos(rad + Math.PI / 2) * wheelOffset - Math.cos(rad) * rearWheelDist,
+              y: y - Math.sin(rad + Math.PI / 2) * wheelOffset - Math.sin(rad) * rearWheelDist,
+          };
+          const rearRight = {
+              x: x + Math.cos(rad + Math.PI / 2) * wheelOffset - Math.cos(rad) * rearWheelDist,
+              y: y + Math.sin(rad + Math.PI / 2) * wheelOffset - Math.sin(rad) * rearWheelDist,
+          };
+          setTireMarks(marks => [...marks, {x: rearLeft.x, y: rearLeft.y}, {x: rearRight.x, y: rearRight.y}]);
+
       }
       
       // --- Steering Assist ---
@@ -568,6 +587,7 @@ export default function GameController({
             zoomLevel={zoomLevel}
             cameraMode={cameraMode}
             isAccelerating={isAccelerating}
+            tireMarks={tireMarks}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">

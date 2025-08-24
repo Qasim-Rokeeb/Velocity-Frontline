@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Weather } from './WeatherToggle';
 import RainEffect from './RainEffect';
 import { CameraMode } from './CameraToggle';
+import TireMarks, { TireMark } from './TireMarks';
 
 interface Spark {
     id: number;
@@ -46,6 +47,7 @@ interface RaceTrackProps {
   zoomLevel: number;
   cameraMode: CameraMode;
   isAccelerating: boolean;
+  tireMarks: TireMark[];
 }
 
 const CarSprite = ({ selectedCar, angle, speed, color, weather, isAccelerating }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather, isAccelerating: boolean }) => {
@@ -75,6 +77,7 @@ export default function RaceTrack({
     zoomLevel,
     cameraMode,
     isAccelerating,
+    tireMarks,
 }: RaceTrackProps) {
 
   const worldStyle: React.CSSProperties = cameraMode === 'first-person' || cameraMode === 'chase'
@@ -127,6 +130,9 @@ export default function RaceTrack({
                 strokeWidth="3"
                 />
                 
+                {/* Tire marks rendered here, under the car */}
+                <TireMarks marks={tireMarks} />
+
                 {/* Start/Finish Line */}
                 <line
                 x1="525" y1="150"
