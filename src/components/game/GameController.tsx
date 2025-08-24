@@ -125,6 +125,7 @@ export default function GameController({
   const [bestLapData, setBestLapData] = useState<CarState[] | null>(null);
   const [gameFrame, setGameFrame] = useState(0);
   const [hideHud, setHideHud] = useState(false);
+  const [maxSpeedReached, setMaxSpeedReached] = useState(0);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -170,6 +171,7 @@ export default function GameController({
     setCarHealth(100);
     setSparks([]);
     setTireMarks([]);
+    setMaxSpeedReached(0);
     if (isRestart) {
         stopReplay();
         setLapHistory([]);
@@ -351,6 +353,12 @@ export default function GameController({
       speed *= friction;
       if (Math.abs(speed) < 0.01) speed = 0;
       
+      // Update Max Speed
+      const currentKmh = Math.abs(speed * (maxSpeed / MAX_INTERNAL_SPEED));
+      if (currentKmh > maxSpeedReached) {
+          setMaxSpeedReached(currentKmh);
+      }
+
       let isTurning = false;
       // --- Steering ---
       if (speed !== 0) {
@@ -511,7 +519,7 @@ export default function GameController({
         return { x: newX, y: newY, angle: newAngle };
     });
 
-  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame, gameState]);
+  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame, gameState, maxSpeedReached]);
 
 
   const startReplay = useCallback((lapData: CarState[]) => {
@@ -761,6 +769,7 @@ export default function GameController({
                     collisions={collisions}
                     lapProgress={lapProgress}
                     carHealth={carHealth}
+                    maxSpeedReached={maxSpeedReached}
                 />
                 <div className="flex flex-col gap-2 w-full lg:w-auto">
                     {gameState === 'replaying' ? (

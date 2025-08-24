@@ -3,7 +3,7 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Timer, ChevronsRight, ShieldAlert, Trophy, Clock } from 'lucide-react';
+import { Timer, ChevronsRight, ShieldAlert, Trophy, Clock, Zap } from 'lucide-react';
 import Speedometer from "./Speedometer";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ interface DashboardProps {
   maxSpeed: number;
   lapProgress: number;
   carHealth: number;
+  maxSpeedReached: number;
 }
 
 const formatTime = (time: number) => {
@@ -47,7 +48,7 @@ const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNo
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, totalTime, currentLap, totalLaps, bestLap, collisions, maxSpeed, lapProgress, carHealth }: DashboardProps) {
+export default function Dashboard({ speed, lapTime, totalTime, currentLap, totalLaps, bestLap, collisions, maxSpeed, lapProgress, carHealth, maxSpeedReached }: DashboardProps) {
   const [isNewBestLap, setIsNewBestLap] = useState(false);
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
@@ -78,11 +79,11 @@ export default function Dashboard({ speed, lapTime, totalTime, currentLap, total
         )}
       </AnimatePresence>
       <CardContent className="p-4 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-7 gap-4">
           <div className="lg:col-span-1 sm:col-span-3 flex items-center justify-center">
             <Speedometer speed={speed} maxSpeed={maxSpeed} />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-5 col-span-1 sm:col-span-3 lg:col-span-5 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-6 col-span-1 sm:col-span-3 lg:col-span-6 gap-4">
             <Tooltip>
                 <TooltipTrigger asChild>
                     <div>
@@ -136,6 +137,16 @@ export default function Dashboard({ speed, lapTime, totalTime, currentLap, total
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>Number of times you've hit a wall.</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard icon={<Zap className="h-5 w-5" />} title="Max Speed" value={Math.round(maxSpeedReached).toString()} unit="km/h" />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Your top speed this race.</p>
                 </TooltipContent>
             </Tooltip>
           </div>
