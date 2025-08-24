@@ -111,6 +111,8 @@ export default function GameController({
   const [currentLap, setCurrentLap] = useState(0);
   const [bestLap, setBestLap] = useState(Infinity);
   const [collisions, setCollisions] = useState(0);
+  const [lapCollisions, setLapCollisions] = useState(0);
+  const [cleanLapStreak, setCleanLapStreak] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [selectedCar, setSelectedCar] = useState<Car | null>(carData[0]);
   const [lapProgress, setLapProgress] = useState(0);
@@ -167,6 +169,7 @@ export default function GameController({
     setLapTime(0);
     setTotalTime(0);
     setCollisions(0);
+    setLapCollisions(0);
     setLapProgress(0);
     setCarHealth(100);
     setSparks([]);
@@ -177,6 +180,7 @@ export default function GameController({
         setLapHistory([]);
         setBestLap(Infinity);
         setBestLapData(null);
+        setCleanLapStreak(0);
     }
     setGameFrame(0);
     passedCheckpoint.current = false;
@@ -201,11 +205,13 @@ export default function GameController({
     setLapTime(0);
     setTotalTime(0);
     setCollisions(0);
+    setLapCollisions(0);
     setLapProgress(0);
     setLapHistory([]);
     setCarHealth(100);
     setSparks([]);
     setTireMarks([]);
+    setCleanLapStreak(0);
     setGameState('countdown');
     setCountdown(3);
   };
@@ -236,8 +242,15 @@ export default function GameController({
         setBestLap(finalLapTime);
         setBestLapData(lapRecordingRef.current);
       }
+      
+      if (lapCollisions === 0) {
+        setCleanLapStreak(prev => prev + 1);
+      } else {
+        setCleanLapStreak(0);
+      }
     }
     lapRecordingRef.current = [];
+    setLapCollisions(0);
 
     if (currentLap + 1 > TOTAL_LAPS) {
       setGameState('finished');
@@ -247,7 +260,7 @@ export default function GameController({
     setCurrentLap(prev => prev + 1);
     setLapTime(0);
     lapStartTimeRef.current = performance.now();
-  }, [currentLap, lapTime, bestLap]);
+  }, [currentLap, lapTime, bestLap, lapCollisions]);
 
   const calculateLapProgress = useCallback((carX: number, carY: number) => {
     // Calculate angle of car relative to track center
@@ -289,6 +302,9 @@ export default function GameController({
     if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
     collisionTimeoutRef.current = setTimeout(() => setIsColliding(false), 200);
 
+    setCollisions(c => c + 1);
+    setLapCollisions(lc => lc + 1);
+    
     let damage = 15; // Medium difficulty
     if (difficulty === 'easy') {
         damage = 10;
@@ -467,7 +483,6 @@ export default function GameController({
 
       if (isOutOfBounds || isInfield) {
         speed = -speed * 0.5; // Bounce back
-        setCollisions(c => c + 1);
         handleCollision();
         
         const newSparkId = sparkIdCounter.current++;
@@ -570,7 +585,7 @@ export default function GameController({
               return () => clearTimeout(timer);
           } else {
               const goTimer = setTimeout(() => setGameState('racing'), 1000); // Show "Go" for 1 sec
-              return () => clearTimeout(goTimer);
+              return () => goTimer;
           }
       }
   }, [gameState, countdown]);
@@ -770,6 +785,7 @@ export default function GameController({
                     lapProgress={lapProgress}
                     carHealth={carHealth}
                     maxSpeedReached={maxSpeedReached}
+                    cleanLapStreak={cleanLapStreak}
                 />
                 <div className="flex flex-col gap-2 w-full lg:w-auto">
                     {gameState === 'replaying' ? (
@@ -808,5 +824,3 @@ export default function GameController({
     </div>
   );
 }
-
-    
