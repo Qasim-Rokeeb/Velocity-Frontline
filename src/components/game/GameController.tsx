@@ -127,7 +127,7 @@ export default function GameController({
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
-  const lapTimerRef = useRef<number>();
+  const lapStartTimeRef = useRef<number>(0);
   const lastTimestampRef = useRef<number>();
   const passedCheckpoint = useRef(false);
   const sparkIdCounter = useRef(0);
@@ -175,7 +175,7 @@ export default function GameController({
     }
     setGameFrame(0);
     passedCheckpoint.current = false;
-    if (lapTimerRef.current) clearInterval(lapTimerRef.current);
+    if (lapStartTimeRef.current) lapStartTimeRef.current = 0;
     if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
     if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
   }, [stopReplay]);
@@ -208,19 +208,21 @@ export default function GameController({
           setGameState('paused');
       } else if (gameState === 'paused') {
           setGameState('racing');
+          lapStartTimeRef.current = performance.now() - lapTime; // Recalibrate start time
       }
   }
 
   const handleLapCompletion = useCallback(() => {
     if (currentLap > 0 && lapTime > 0) {
+      const finalLapTime = performance.now() - lapStartTimeRef.current;
       const newLapData: LapData = {
-          time: lapTime,
+          time: finalLapTime,
           states: lapRecordingRef.current,
       };
       setLapHistory(prev => [...prev, newLapData]);
 
-      if (lapTime < bestLap) {
-        setBestLap(lapTime);
+      if (finalLapTime < bestLap) {
+        setBestLap(finalLapTime);
         setBestLapData(lapRecordingRef.current);
       }
     }
@@ -233,6 +235,7 @@ export default function GameController({
 
     setCurrentLap(prev => prev + 1);
     setLapTime(0);
+    lapStartTimeRef.current = performance.now();
   }, [currentLap, lapTime, bestLap]);
 
   const calculateLapProgress = useCallback((carX: number, carY: number) => {
@@ -290,6 +293,11 @@ export default function GameController({
     }
     const deltaTime = (timestamp - lastTimestampRef.current) / 16.67; // Normalize to 60fps
     lastTimestampRef.current = timestamp;
+    
+    // Update lap time
+    if (lapStartTimeRef.current > 0) {
+      setLapTime(timestamp - lapStartTimeRef.current);
+    }
 
     let newCarState = { ...carState };
     setCarState(prev => {
@@ -530,7 +538,6 @@ export default function GameController({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-      if (lapTimerRef.current) clearInterval(lapTimerRef.current);
       if (replayLoopRef.current) cancelAnimationFrame(replayLoopRef.current);
     };
   }, [resetGame, togglePause]);
@@ -551,23 +558,19 @@ export default function GameController({
     if (gameState === 'racing') {
       lastTimestampRef.current = performance.now();
       gameLoopRef.current = requestAnimationFrame(gameLoop);
-      lapTimerRef.current = window.setInterval(() => {
-        setLapTime(t => t + 10);
-      }, 10);
       if (currentLap === 0) {
         setCurrentLap(1);
         setLapTime(0);
+        lapStartTimeRef.current = performance.now();
         lapRecordingRef.current = [];
         passedCheckpoint.current = false;
         setGameFrame(0);
       }
     } else {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-      if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     }
     return () => {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-      if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     }
   }, [gameState, gameLoop, currentLap]);
 
@@ -586,6 +589,16 @@ export default function GameController({
     <div className="space-y-4">
       <audio ref={skidAudioRef} src="/assets/skid.mp3" preload="auto" />
       <div className="relative aspect-[16/10] bg-blue-900/50 rounded-xl shadow-2xl overflow-hidden border-4 border-card">
+        <AnimatePresence>
+            {isColliding && (
+                <motion.div
+                    className="absolute inset-0 bg-red-500/50 z-50 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, transition: { duration: 0.1 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                />
+            )}
+        </AnimatePresence>
         <AnimatePresence>
             {gameState !== 'racing' && gameState !== 'finished' && (
             <motion.div
@@ -759,3 +772,5 @@ export default function GameController({
     </div>
   );
 }
+
+    
