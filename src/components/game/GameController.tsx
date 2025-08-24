@@ -123,6 +123,7 @@ export default function GameController({
   const [replayFrame, setReplayFrame] = useState(0);
   const [bestLapData, setBestLapData] = useState<CarState[] | null>(null);
   const [gameFrame, setGameFrame] = useState(0);
+  const [hideHud, setHideHud] = useState(false);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -146,12 +147,6 @@ export default function GameController({
     const milliseconds = (time % 1000).toString().padStart(3, '0');
     return `${minutes}:${seconds}.${milliseconds}`;
   };
-
-  const resetCarPosition = useCallback(() => {
-    setCarState(INITIAL_CAR_STATE);
-    setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
-    passedCheckpoint.current = false;
-  }, []);
 
   const stopReplay = useCallback(() => {
       setGameState('idle');
@@ -184,6 +179,12 @@ export default function GameController({
     if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
     if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
   }, [stopReplay]);
+
+  const resetCarPosition = useCallback(() => {
+    setCarState(INITIAL_CAR_STATE);
+    setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
+    passedCheckpoint.current = false;
+  }, []);
   
   const startGame = () => {
     if (!selectedCar) return;
@@ -497,6 +498,7 @@ export default function GameController({
       setReplayData(lapData);
       setReplayFrame(0);
       setGhostCarState(lapData[0]);
+      setHideHud(false);
   }, []);
 
   const replayLoop = useCallback(() => {
@@ -585,7 +587,7 @@ export default function GameController({
       <audio ref={skidAudioRef} src="/assets/skid.mp3" preload="auto" />
       <div className="relative aspect-[16/10] bg-blue-900/50 rounded-xl shadow-2xl overflow-hidden border-4 border-card">
         <AnimatePresence>
-            {gameState !== 'racing' && gameState !== 'finished' && gameState !== 'replaying' && (
+            {gameState !== 'racing' && gameState !== 'finished' && (
             <motion.div
                 className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white backdrop-blur-sm"
                 initial={{ opacity: 0 }}
@@ -618,6 +620,18 @@ export default function GameController({
                         <h2 className="text-5xl font-headline text-primary animate-pulse">Paused</h2>
                         <Button onClick={togglePause} size="lg">
                             <PlayCircle className="mr-2 h-5 w-5" /> Resume
+                        </Button>
+                    </div>
+                )}
+                 {gameState === 'replaying' && (
+                    <div className="absolute top-4 right-4 flex gap-2">
+                         <Button onClick={() => setHideHud(h => !h)} variant="outline">
+                            <Film className="mr-2 h-5 w-5" />
+                            Toggle HUD
+                        </Button>
+                        <Button onClick={stopReplay} variant="destructive">
+                            <StopCircle className="mr-2 h-5 w-5" />
+                            Stop Replay
                         </Button>
                     </div>
                 )}
@@ -688,44 +702,60 @@ export default function GameController({
             )}
         </RaceTrack>
       </div>
-      <div className="flex items-start gap-4 flex-col lg:flex-row">
-        <Dashboard
-            speed={Math.abs(carState.speed * (maxSpeed / MAX_INTERNAL_SPEED))}
-            maxSpeed={maxSpeed}
-            lapTime={lapTime}
-            currentLap={Math.min(currentLap, TOTAL_LAPS)}
-            bestLap={bestLap}
-            collisions={collisions}
-            lapProgress={lapProgress}
-            carHealth={carHealth}
-        />
-        <div className="flex flex-col gap-2 w-full lg:w-auto">
-            {gameState === 'replaying' ? (
-                <Button onClick={stopReplay} variant="destructive" className="h-full">
-                    <StopCircle className="mr-2 h-5 w-5"/>
-                    Stop Replay
-                </Button>
-            ) : (
-                <>
-                    <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>
-                        {gameState === 'paused' ? <PlayCircle className="mr-2 h-5 w-5"/> : <Pause className="mr-2 h-5 w-5"/>}
-                        {gameState === 'paused' ? 'Resume' : 'Pause'}
-                    </Button>
-                    <Button onClick={resetCarPosition} variant="outline" className="h-full" disabled={gameState === 'idle' || gameState === 'countdown'}>
-                        <LocateFixed className="mr-2 h-5 w-5"/>
-                        Reset Car
-                    </Button>
-                    <Button onClick={() => resetGame(true)} variant="outline" className="h-full">
-                        <RotateCw className="mr-2 h-5 w-5"/>
-                        Restart
-                    </Button>
-                </>
-            )}
-        </div>
-      </div>
-       <LapHistory lapData={lapHistory} onReplayLap={startReplay} />
+
+      <AnimatePresence>
+      {!(gameState === 'replaying' && hideHud) && (
+        <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4"
+        >
+            <div className="flex items-start gap-4 flex-col lg:flex-row">
+                <Dashboard
+                    speed={Math.abs(carState.speed * (maxSpeed / MAX_INTERNAL_SPEED))}
+                    maxSpeed={maxSpeed}
+                    lapTime={lapTime}
+                    currentLap={Math.min(currentLap, TOTAL_LAPS)}
+                    bestLap={bestLap}
+                    collisions={collisions}
+                    lapProgress={lapProgress}
+                    carHealth={carHealth}
+                />
+                <div className="flex flex-col gap-2 w-full lg:w-auto">
+                    {gameState === 'replaying' ? (
+                        <>
+                           <Button onClick={() => setHideHud(h => !h)} variant="outline" className="h-full">
+                                <Film className="mr-2 h-5 w-5"/>
+                                {hideHud ? 'Show HUD' : 'Hide HUD'}
+                            </Button>
+                            <Button onClick={stopReplay} variant="destructive" className="h-full">
+                                <StopCircle className="mr-2 h-5 w-5"/>
+                                Stop Replay
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button onClick={togglePause} variant="outline" className="h-full" disabled={gameState !== 'racing' && gameState !== 'paused'}>
+                                {gameState === 'paused' ? <PlayCircle className="mr-2 h-5 w-5"/> : <Pause className="mr-2 h-5 w-5"/>}
+                                {gameState === 'paused' ? 'Resume' : 'Pause'}
+                            </Button>
+                            <Button onClick={resetCarPosition} variant="outline" className="h-full" disabled={gameState === 'idle' || gameState === 'countdown'}>
+                                <LocateFixed className="mr-2 h-5 w-5"/>
+                                Reset Car
+                            </Button>
+                            <Button onClick={() => resetGame(true)} variant="outline" className="h-full">
+                                <RotateCw className="mr-2 h-5 w-5"/>
+                                Restart
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </div>
+            <LapHistory lapData={lapHistory} onReplayLap={startReplay} />
+        </motion.div>
+      )}
+      </AnimatePresence>
     </div>
   );
 }
-
-    
