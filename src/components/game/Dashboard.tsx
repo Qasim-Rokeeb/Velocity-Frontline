@@ -3,7 +3,7 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Timer, ChevronsRight, ShieldAlert, Trophy, Clock, Zap, Sparkles } from 'lucide-react';
+import { Timer, ChevronsRight, ShieldAlert, Trophy, Clock, Zap, Sparkles, Wrench } from 'lucide-react';
 import Speedometer from "./Speedometer";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import LapProgress from "./LapProgress";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import DamageIndicator from "./DamageIndicator";
+import { Button } from "../ui/button";
 
 
 interface DashboardProps {
@@ -26,6 +27,9 @@ interface DashboardProps {
   carHealth: number;
   maxSpeedReached: number;
   cleanLapStreak: number;
+  onPitStop: () => void;
+  canPit: boolean;
+  isPitting: boolean;
 }
 
 const formatTime = (time: number) => {
@@ -49,7 +53,23 @@ const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNo
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, totalTime, currentLap, totalLaps, bestLap, collisions, maxSpeed, lapProgress, carHealth, maxSpeedReached, cleanLapStreak }: DashboardProps) {
+export default function Dashboard({ 
+    speed, 
+    lapTime, 
+    totalTime, 
+    currentLap, 
+    totalLaps, 
+    bestLap, 
+    collisions, 
+    maxSpeed, 
+    lapProgress, 
+    carHealth, 
+    maxSpeedReached, 
+    cleanLapStreak,
+    onPitStop,
+    canPit,
+    isPitting,
+}: DashboardProps) {
   const [isNewBestLap, setIsNewBestLap] = useState(false);
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
@@ -81,8 +101,18 @@ export default function Dashboard({ speed, lapTime, totalTime, currentLap, total
       </AnimatePresence>
       <CardContent className="p-4 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-          <div className="lg:col-span-1 sm:col-span-4 flex items-center justify-center">
+          <div className="lg:col-span-1 sm:col-span-4 flex flex-col items-center justify-center gap-2">
             <Speedometer speed={speed} maxSpeed={maxSpeed} />
+            <Button 
+              onClick={onPitStop} 
+              disabled={!canPit || isPitting} 
+              variant="outline"
+              size="sm"
+              className={cn("w-full", canPit && !isPitting && "animate-pulse")}
+            >
+              <Wrench className="h-4 w-4 mr-2" />
+              {isPitting ? 'Pitting...' : 'Pit Stop'}
+            </Button>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-7 col-span-1 sm:col-span-4 lg:col-span-7 gap-4">
             <Tooltip>

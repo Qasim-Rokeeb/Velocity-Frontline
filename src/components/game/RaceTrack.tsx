@@ -129,6 +129,10 @@ export default function RaceTrack({
                     <feMergeNode in="SourceGraphic"/>
                     </feMerge>
                 </filter>
+                <pattern id="pit-pattern" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+                    <rect width="10" height="20" fill="hsla(var(--primary) / 0.5)"/>
+                    <rect x="10" width="10" height="20" fill="hsla(var(--primary) / 0.4)"/>
+                </pattern>
                 </defs>
                 
                 {/* Track path: A compound path creating an oval shape */}
@@ -144,6 +148,11 @@ export default function RaceTrack({
                 stroke="hsl(var(--muted))"
                 strokeWidth="3"
                 />
+
+                {/* Pit Lane */}
+                <path d="M 450 350 L 700 350 L 700 400 L 450 400 Z" fill="url(#pit-pattern)" />
+                <line x1="450" y1="350" x2="700" y2="350" stroke="yellow" strokeWidth="2" strokeDasharray="5,5" />
+                
                 
                 {/* Tire marks rendered here, under the car */}
                 <TireMarks marks={tireMarks} />

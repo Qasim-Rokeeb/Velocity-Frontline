@@ -27,6 +27,7 @@ import { Weather } from './WeatherToggle';
 import { CameraMode } from './CameraToggle';
 import { TireMark } from './TireMarks';
 import GhostCar from './GhostCar';
+import PitStopUI from './PitStopUI';
 
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused' | 'replaying';
@@ -48,6 +49,7 @@ const TRACK_CENTER = { x: 400, y: 250 };
 const TRACK_OUTER = { rx: 350, ry: 200 };
 const TRACK_INNER = { rx: 250, ry: 100 };
 const FINISH_LINE = { x: 525, y_start: 150, y_end: 350 };
+const PIT_LANE = { x_start: 450, x_end: 700, y_start: 360, y_end: 400 };
 const TOTAL_LAPS = 3;
 const MAX_INTERNAL_SPEED = 5;
 
@@ -128,6 +130,9 @@ export default function GameController({
   const [gameFrame, setGameFrame] = useState(0);
   const [hideHud, setHideHud] = useState(false);
   const [maxSpeedReached, setMaxSpeedReached] = useState(0);
+  const [canPit, setCanPit] = useState(false);
+  const [isPitting, setIsPitting] = useState(false);
+  const [pitStopProgress, setPitStopProgress] = useState(0);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -143,6 +148,7 @@ export default function GameController({
   const collisionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lapRecordingRef = useRef<CarState[]>([]);
   const replayLoopRef = useRef<number>();
+  const pitStopIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 
   const formatTime = (time: number) => {
@@ -175,6 +181,10 @@ export default function GameController({
     setSparks([]);
     setTireMarks([]);
     setMaxSpeedReached(0);
+    setIsPitting(false);
+    setCanPit(false);
+    setPitStopProgress(0);
+    if (pitStopIntervalRef.current) clearInterval(pitStopIntervalRef.current);
     if (isRestart) {
         if(gameState === 'replaying') stopReplay();
         setLapHistory([]);
@@ -314,6 +324,31 @@ export default function GameController({
     setCarHealth(h => Math.max(0, h - damage));
   }, [difficulty]);
 
+  const handlePitStop = useCallback(() => {
+    if (!canPit || isPitting) return;
+
+    setIsPitting(true);
+    setPitStopProgress(0);
+
+    const pitDuration = 3000; // 3 seconds
+    const interval = 50; // update every 50ms
+    const steps = pitDuration / interval;
+    const healthPerStep = 100 / steps;
+
+    pitStopIntervalRef.current = setInterval(() => {
+        setCarHealth(h => Math.min(100, h + healthPerStep));
+        setPitStopProgress(p => p + (100 / steps));
+    }, interval);
+
+    setTimeout(() => {
+        if (pitStopIntervalRef.current) clearInterval(pitStopIntervalRef.current);
+        setIsPitting(false);
+        setCarHealth(100);
+        setPitStopProgress(0);
+    }, pitDuration);
+
+  }, [canPit, isPitting]);
+
   const gameLoop = useCallback((timestamp: number) => {
     if (lastTimestampRef.current === undefined) {
       lastTimestampRef.current = timestamp;
@@ -334,144 +369,155 @@ export default function GameController({
     setCarState(prev => {
       let { x, y, speed, angle, isSkidding } = prev;
 
-      // --- Controls ---
-      const turnSpeed = steeringSensitivity;
-      const friction = 0.97;
-      const maxInternalSpeed = (maxSpeed / 240) * MAX_INTERNAL_SPEED;
-      const maxReverseSpeed = -2;
+      // Freeze car during pit stop
+      if (isPitting) {
+          speed = 0;
+          x = prev.x;
+          y = prev.y;
+      } else {
+        // --- Controls ---
+        const turnSpeed = steeringSensitivity;
+        const friction = 0.97;
+        const maxInternalSpeed = (maxSpeed / 240) * MAX_INTERNAL_SPEED;
+        const maxReverseSpeed = -2;
 
-      const { accelerate, brake, left, right } = keybindings;
-      const joystick = joystickDataRef.current;
-      let isAcceleratingInput = false;
+        const { accelerate, brake, left, right } = keybindings;
+        const joystick = joystickDataRef.current;
+        let isAcceleratingInput = false;
 
-      // --- Acceleration & Braking ---
-      if (joystick.distance > 0) { // Joystick is active
-        const joystickAngleRad = joystick.angle * (Math.PI / 180);
-        const forwardComponent = Math.cos(joystickAngleRad); // -1 to 1, where 1 is up
-        if (forwardComponent > 0) { // Moving joystick forward
-          const acceleration = accelerationSensitivity * forwardComponent * (joystick.distance / 50);
-          speed = Math.min(maxInternalSpeed, speed + acceleration);
-          isAcceleratingInput = true;
-        } else { // Moving joystick backward
-          const braking = brakeStrength * -forwardComponent * (joystick.distance / 50);
-          speed = Math.max(maxReverseSpeed, speed - braking);
-        }
-      } else { // Keyboard controls
-        if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) {
-            speed = Math.min(maxInternalSpeed, speed + accelerationSensitivity);
+        // --- Acceleration & Braking ---
+        if (joystick.distance > 0) { // Joystick is active
+          const joystickAngleRad = joystick.angle * (Math.PI / 180);
+          const forwardComponent = Math.cos(joystickAngleRad); // -1 to 1, where 1 is up
+          if (forwardComponent > 0) { // Moving joystick forward
+            const acceleration = accelerationSensitivity * forwardComponent * (joystick.distance / 50);
+            speed = Math.min(maxInternalSpeed, speed + acceleration);
             isAcceleratingInput = true;
+          } else { // Moving joystick backward
+            const braking = brakeStrength * -forwardComponent * (joystick.distance / 50);
+            speed = Math.max(maxReverseSpeed, speed - braking);
+          }
+        } else { // Keyboard controls
+          if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) {
+              speed = Math.min(maxInternalSpeed, speed + accelerationSensitivity);
+              isAcceleratingInput = true;
+          }
+          if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
         }
-        if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
-      }
-      
-      setIsAccelerating(isAcceleratingInput && speed > 0);
+        
+        setIsAccelerating(isAcceleratingInput && speed > 0);
 
-      speed *= friction;
-      if (Math.abs(speed) < 0.01) speed = 0;
-      
-      // Update Max Speed
-      const currentKmh = Math.abs(speed * (maxSpeed / MAX_INTERNAL_SPEED));
-      if (currentKmh > maxSpeedReached) {
-          setMaxSpeedReached(currentKmh);
-      }
+        speed *= friction;
+        if (Math.abs(speed) < 0.01) speed = 0;
+        
+        // Update Max Speed
+        const currentKmh = Math.abs(speed * (maxSpeed / MAX_INTERNAL_SPEED));
+        if (currentKmh > maxSpeedReached) {
+            setMaxSpeedReached(currentKmh);
+        }
 
-      let isTurning = false;
-      // --- Steering ---
-      if (speed !== 0) {
-          const flip = speed > 0 ? 1 : -1;
+        let isTurning = false;
+        // --- Steering ---
+        if (speed !== 0) {
+            const flip = speed > 0 ? 1 : -1;
+            
+            if (joystick.distance > 0) { // Joystick steering
+                const joystickAngleRad = joystick.angle * (Math.PI / 180);
+                const turnComponent = Math.sin(joystickAngleRad); // -1 to 1, where 1 is right
+                const turnAmount = turnComponent * (joystick.distance / 50);
+                angle += turnSpeed * turnAmount * flip * 0.5; // Adjust multiplier as needed
+                if (Math.abs(turnComponent) > 0.2) isTurning = true;
+            } else { // Keyboard steering
+                if (keys.current.arrowleft || keys.current[left]) {
+                  angle -= turnSpeed * flip;
+                  isTurning = true;
+                }
+                if (keys.current.arrowright || keys.current[right]) {
+                  angle += turnSpeed * flip;
+                  isTurning = true;
+                }
+            }
+        }
+
+        // --- Tire Grip & Skidding ---
+        if (isTurning && Math.abs(speed) > maxInternalSpeed * 0.6 && !isSkidding) {
+            const skidChance = (1 - tireGrip) * (Math.abs(speed) / maxInternalSpeed) * 0.1;
+            if (Math.random() < skidChance) {
+                isSkidding = true;
+                if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
+                skidTimeoutRef.current = setTimeout(() => {
+                    setCarState(s => ({...s, isSkidding: false}));
+                }, 300); // Skid duration
+            }
+        }
+
+        if (isSkidding) {
+            // Reduce steering effectiveness during skid
+            const skidSteerDampen = 0.5;
+            if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
+            if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
+            // Add a little random angle wobble
+            angle += (Math.random() - 0.5) * 2;
+
+            // Add tire mark
+            const rad = (angle - 90) * (Math.PI / 180);
+            const wheelOffset = 5; // Distance of wheels from car center
+            const rearWheelDist = 10;
+            const rearLeft = {
+                x: x - Math.cos(rad + Math.PI / 2) * wheelOffset - Math.cos(rad) * rearWheelDist,
+                y: y - Math.sin(rad + Math.PI / 2) * wheelOffset - Math.sin(rad) * rearWheelDist,
+            };
+            const rearRight = {
+                x: x + Math.cos(rad + Math.PI / 2) * wheelOffset - Math.cos(rad) * rearWheelDist,
+                y: y + Math.sin(rad + Math.PI / 2) * wheelOffset - Math.sin(rad) * rearWheelDist,
+            };
+            setTireMarks(marks => [...marks, {x: rearLeft.x, y: rearLeft.y}, {x: rearRight.x, y: rearRight.y}]);
+
+        }
+        
+        // --- Steering Assist ---
+        if (steeringAssist && speed > 0.5 && !isSkidding) {
+          const dx = x - TRACK_CENTER.x;
+          const dy = y - TRACK_CENTER.y;
           
-          if (joystick.distance > 0) { // Joystick steering
-              const joystickAngleRad = joystick.angle * (Math.PI / 180);
-              const turnComponent = Math.sin(joystickAngleRad); // -1 to 1, where 1 is right
-              const turnAmount = turnComponent * (joystick.distance / 50);
-              angle += turnSpeed * turnAmount * flip * 0.5; // Adjust multiplier as needed
-              if (Math.abs(turnComponent) > 0.2) isTurning = true;
-          } else { // Keyboard steering
-              if (keys.current.arrowleft || keys.current[left]) {
-                angle -= turnSpeed * flip;
-                isTurning = true;
-              }
-              if (keys.current.arrowright || keys.current[right]) {
-                angle += turnSpeed * flip;
-                isTurning = true;
-              }
+          const avg_rx = (TRACK_OUTER.rx + TRACK_INNER.rx) / 2;
+          const avg_ry = (TRACK_OUTER.ry + TRACK_INNER.ry) / 2;
+
+          const tangentSlope = -(avg_ry ** 2 * dx) / (avg_rx ** 2 * dy);
+          let targetAngle = Math.atan(tangentSlope) * (180 / Math.PI);
+          
+          if (dy > 0) {
+              targetAngle += 180;
           }
-      }
-
-      // --- Tire Grip & Skidding ---
-      if (isTurning && Math.abs(speed) > maxInternalSpeed * 0.6 && !isSkidding) {
-          const skidChance = (1 - tireGrip) * (Math.abs(speed) / maxInternalSpeed) * 0.1;
-          if (Math.random() < skidChance) {
-              isSkidding = true;
-              if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
-              skidTimeoutRef.current = setTimeout(() => {
-                  setCarState(s => ({...s, isSkidding: false}));
-              }, 300); // Skid duration
+          if (speed < 0) {
+               targetAngle += 180;
           }
-      }
 
-      if (isSkidding) {
-          // Reduce steering effectiveness during skid
-          const skidSteerDampen = 0.5;
-          if (keys.current.arrowleft || keys.current[left]) angle -= turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
-          if (keys.current.arrowright || keys.current[right]) angle += turnSpeed * (speed > 0 ? 1 : -1) * (1 - skidSteerDampen);
-          // Add a little random angle wobble
-          angle += (Math.random() - 0.5) * 2;
+          const isCounterClockwise = speed > 0;
+          if (!isCounterClockwise) {
+              targetAngle += 180;
+          }
+          
+          const normalizeAngle = (a:number) => (a + 180) % 360 - 180;
+          const currentNormalizedAngle = normalizeAngle(angle);
+          const targetNormalizedAngle = normalizeAngle(targetAngle);
 
-          // Add tire mark
-          const rad = (angle - 90) * (Math.PI / 180);
-          const wheelOffset = 5; // Distance of wheels from car center
-          const rearWheelDist = 10;
-          const rearLeft = {
-              x: x - Math.cos(rad + Math.PI / 2) * wheelOffset - Math.cos(rad) * rearWheelDist,
-              y: y - Math.sin(rad + Math.PI / 2) * wheelOffset - Math.sin(rad) * rearWheelDist,
-          };
-          const rearRight = {
-              x: x + Math.cos(rad + Math.PI / 2) * wheelOffset - Math.cos(rad) * rearWheelDist,
-              y: y + Math.sin(rad + Math.PI / 2) * wheelOffset - Math.sin(rad) * rearWheelDist,
-          };
-          setTireMarks(marks => [...marks, {x: rearLeft.x, y: rearLeft.y}, {x: rearRight.x, y: rearRight.y}]);
+          let angleDiff = targetNormalizedAngle - currentNormalizedAngle;
+          if (angleDiff > 180) angleDiff -= 360;
+          if (angleDiff < -180) angleDiff += 360;
 
+          const assistStrength = 0.03;
+          angle += angleDiff * assistStrength * deltaTime;
+        }
+
+        const rad = angle * (Math.PI / 180);
+        x += Math.cos(rad) * speed * deltaTime;
+        y += Math.sin(rad) * speed * deltaTime;
       }
       
-      // --- Steering Assist ---
-      if (steeringAssist && speed > 0.5 && !isSkidding) {
-        const dx = x - TRACK_CENTER.x;
-        const dy = y - TRACK_CENTER.y;
-        
-        const avg_rx = (TRACK_OUTER.rx + TRACK_INNER.rx) / 2;
-        const avg_ry = (TRACK_OUTER.ry + TRACK_INNER.ry) / 2;
-
-        const tangentSlope = -(avg_ry ** 2 * dx) / (avg_rx ** 2 * dy);
-        let targetAngle = Math.atan(tangentSlope) * (180 / Math.PI);
-        
-        if (dy > 0) {
-            targetAngle += 180;
-        }
-        if (speed < 0) {
-             targetAngle += 180;
-        }
-
-        const isCounterClockwise = speed > 0;
-        if (!isCounterClockwise) {
-            targetAngle += 180;
-        }
-        
-        const normalizeAngle = (a:number) => (a + 180) % 360 - 180;
-        const currentNormalizedAngle = normalizeAngle(angle);
-        const targetNormalizedAngle = normalizeAngle(targetAngle);
-
-        let angleDiff = targetNormalizedAngle - currentNormalizedAngle;
-        if (angleDiff > 180) angleDiff -= 360;
-        if (angleDiff < -180) angleDiff += 360;
-
-        const assistStrength = 0.03;
-        angle += angleDiff * assistStrength * deltaTime;
-      }
-
-      const rad = angle * (Math.PI / 180);
-      x += Math.cos(rad) * speed * deltaTime;
-      y += Math.sin(rad) * speed * deltaTime;
+      // --- Pit Stop Detection ---
+      const inPitLane = x > PIT_LANE.x_start && x < PIT_LANE.x_end && y > PIT_LANE.y_start && y < PIT_LANE.y_end;
+      setCanPit(inPitLane && Math.abs(speed) < 0.1);
 
       // --- Collision Detection ---
       const isOutOfBounds =
@@ -481,7 +527,7 @@ export default function GameController({
         ((x - TRACK_CENTER.x) ** 2) / (TRACK_INNER.rx ** 2) +
         ((y - TRACK_CENTER.y) ** 2) / (TRACK_INNER.ry ** 2) < 1;
 
-      if (isOutOfBounds || isInfield) {
+      if (!inPitLane && (isOutOfBounds || isInfield)) {
         speed = -speed * 0.5; // Bounce back
         handleCollision();
         
@@ -534,7 +580,7 @@ export default function GameController({
         return { x: newX, y: newY, angle: newAngle };
     });
 
-  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame, gameState, maxSpeedReached]);
+  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame, gameState, maxSpeedReached, isPitting]);
 
 
   const startReplay = useCallback((lapData: CarState[]) => {
@@ -575,6 +621,7 @@ export default function GameController({
       window.removeEventListener('keyup', handleKeyUp);
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
       if (replayLoopRef.current) cancelAnimationFrame(replayLoopRef.current);
+      if (pitStopIntervalRef.current) clearInterval(pitStopIntervalRef.current);
     };
   }, [resetGame, togglePause]);
 
@@ -761,6 +808,7 @@ export default function GameController({
             {ghostCarState && (gameState === 'replaying' || (gameState === 'racing' && bestLapData)) && (
                 <GhostCar carState={ghostCarState} selectedCar={selectedCar} carColor={carColor} weather={weather} />
             )}
+            {isPitting && <PitStopUI progress={pitStopProgress} carState={carState} />}
         </RaceTrack>
       </div>
 
@@ -786,6 +834,9 @@ export default function GameController({
                     carHealth={carHealth}
                     maxSpeedReached={maxSpeedReached}
                     cleanLapStreak={cleanLapStreak}
+                    onPitStop={handlePitStop}
+                    canPit={canPit}
+                    isPitting={isPitting}
                 />
                 <div className="flex flex-col gap-2 w-full lg:w-auto">
                     {gameState === 'replaying' ? (
