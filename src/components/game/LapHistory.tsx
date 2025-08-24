@@ -1,11 +1,27 @@
+
 // src/components/game/LapHistory.tsx
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { History } from "lucide-react";
+import { History, Film } from "lucide-react";
+import { Button } from "../ui/button";
+
+interface CarState {
+    x: number;
+    y: number;
+    speed: number;
+    angle: number;
+    isSkidding: boolean;
+}
+
+interface LapData {
+  time: number;
+  states: CarState[];
+}
 
 interface LapHistoryProps {
-  lapTimes: number[];
+  lapData: LapData[];
+  onReplayLap: (states: CarState[]) => void;
 }
 
 const formatTime = (time: number) => {
@@ -16,8 +32,8 @@ const formatTime = (time: number) => {
   return `${minutes}:${seconds}.${milliseconds}`;
 };
 
-export default function LapHistory({ lapTimes }: LapHistoryProps) {
-  if (lapTimes.length === 0) {
+export default function LapHistory({ lapData, onReplayLap }: LapHistoryProps) {
+  if (lapData.length === 0) {
     return null;
   }
 
@@ -34,10 +50,18 @@ export default function LapHistory({ lapTimes }: LapHistoryProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {lapTimes.map((time, index) => (
-            <div key={index} className="flex flex-col items-center justify-center p-2 bg-background/50 rounded-lg shadow-inner text-center border border-border/20">
+          {lapData.map((lap, index) => (
+            <div key={index} className="flex flex-col items-center justify-center p-2 bg-background/50 rounded-lg shadow-inner text-center border border-border/20 space-y-2">
               <span className="text-xs text-muted-foreground">Lap {index + 1}</span>
-              <span className="font-mono font-bold text-foreground">{formatTime(time)}</span>
+              <span className="font-mono font-bold text-foreground">{formatTime(lap.time)}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onReplayLap(lap.states)}
+              >
+                <Film className="mr-2 h-4 w-4" />
+                Replay
+              </Button>
             </div>
           ))}
         </div>

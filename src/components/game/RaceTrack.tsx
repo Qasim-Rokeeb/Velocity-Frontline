@@ -50,6 +50,7 @@ interface RaceTrackProps {
   isAccelerating: boolean;
   tireMarks: TireMark[];
   isColliding: boolean;
+  children?: React.ReactNode;
 }
 
 const CarSprite = ({ selectedCar, angle, speed, color, weather, isAccelerating }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather, isAccelerating: boolean }) => {
@@ -81,6 +82,7 @@ export default function RaceTrack({
     isAccelerating,
     tireMarks,
     isColliding,
+    children,
 }: RaceTrackProps) {
 
   const worldStyle: React.CSSProperties = cameraMode === 'first-person' || cameraMode === 'chase'
@@ -197,6 +199,8 @@ export default function RaceTrack({
             >
                 <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} color={carColor} weather={weather} isAccelerating={isAccelerating} />
             </div>
+
+            {children}
 
             {sparks.map(spark => (
                 <Sparks
