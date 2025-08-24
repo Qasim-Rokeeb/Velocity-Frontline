@@ -125,7 +125,7 @@ Each car has:
 - Smart contract XP tracking (if moving onchain)
 - Allow setup on warpcast
 - Improve game UI
-
+- Add New changes 
 ---
 
 ## 📜 License
