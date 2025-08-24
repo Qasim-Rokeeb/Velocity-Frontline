@@ -153,8 +153,8 @@ export default function Home() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <main className="flex flex-col items-center justify-between min-h-screen bg-background text-foreground p-4 lg:p-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
-          <header className="w-full max-w-7xl flex justify-between items-center text-center">
+        <div className="flex flex-col min-h-screen bg-background text-foreground p-4 lg:p-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
+          <header className="w-full max-w-7xl flex justify-between items-center text-center mx-auto">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <Logo />
@@ -170,7 +170,7 @@ export default function Home() {
             </div>
           </header>
           
-          <div className="w-full max-w-7xl my-8">
+          <main className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto my-8">
               <GameController 
                 steeringSensitivity={steeringSensitivity} 
                 accelerationSensitivity={accelerationSensitivity}
@@ -191,9 +191,9 @@ export default function Home() {
                 zoomLevel={zoomLevel}
                 cameraMode={cameraMode}
               />
-          </div>
+          </main>
           <Footer />
-        </main>
+        </div>
       </SidebarInset>
     </div>
   );
