@@ -124,6 +124,8 @@ export default function GameController({
   const sparkIdCounter = useRef(0);
   const joystickDataRef = useRef({ angle: 0, distance: 0 });
   const skidTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const skidAudioRef = useRef<HTMLAudioElement>(null);
+  const lastCollisionTime = useRef(0);
 
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
@@ -227,6 +229,15 @@ export default function GameController({
   }, []);
 
   const handleCollision = useCallback(() => {
+    const now = Date.now();
+    if (now - lastCollisionTime.current > 100) { // 100ms cooldown
+        if (skidAudioRef.current) {
+            skidAudioRef.current.currentTime = 0;
+            skidAudioRef.current.play().catch(console.error);
+        }
+        lastCollisionTime.current = now;
+    }
+
     let damage = 15; // Medium difficulty
     if (difficulty === 'easy') {
         damage = 10;
@@ -490,6 +501,7 @@ export default function GameController({
 
   return (
     <div className="space-y-4">
+      <audio ref={skidAudioRef} src="/assets/skid.mp3" preload="auto" />
       <div className="relative aspect-[16/10] bg-blue-900/50 rounded-xl shadow-2xl overflow-hidden border-4 border-card">
         <AnimatePresence>
             {gameState !== 'racing' && gameState !== 'finished' && (
