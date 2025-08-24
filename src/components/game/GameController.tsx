@@ -121,6 +121,8 @@ export default function GameController({
   const [ghostCarState, setGhostCarState] = useState<CarState | null>(null);
   const [replayData, setReplayData] = useState<CarState[] | null>(null);
   const [replayFrame, setReplayFrame] = useState(0);
+  const [bestLapData, setBestLapData] = useState<CarState[] | null>(null);
+  const [gameFrame, setGameFrame] = useState(0);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -136,6 +138,7 @@ export default function GameController({
   const lapRecordingRef = useRef<CarState[]>([]);
   const replayLoopRef = useRef<number>();
 
+
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
     const minutes = Math.floor(time / 60000).toString().padStart(2, '0');
@@ -148,6 +151,14 @@ export default function GameController({
     setCarState(INITIAL_CAR_STATE);
     setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
     passedCheckpoint.current = false;
+  }, []);
+
+  const stopReplay = useCallback(() => {
+      setGameState('idle');
+      setReplayData(null);
+      setReplayFrame(0);
+      setGhostCarState(null);
+      if (replayLoopRef.current) cancelAnimationFrame(replayLoopRef.current);
   }, []);
 
   const resetGame = useCallback((isRestart = false) => {
@@ -165,12 +176,14 @@ export default function GameController({
     if (isRestart) {
         setLapHistory([]);
         setBestLap(Infinity);
+        setBestLapData(null);
     }
+    setGameFrame(0);
     passedCheckpoint.current = false;
     if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
     if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
-  }, []);
+  }, [stopReplay]);
   
   const startGame = () => {
     if (!selectedCar) return;
@@ -199,14 +212,16 @@ export default function GameController({
 
   const handleLapCompletion = useCallback(() => {
     if (currentLap > 0 && lapTime > 0) {
-      if (lapTime < bestLap) {
-        setBestLap(lapTime);
-      }
       const newLapData: LapData = {
           time: lapTime,
           states: lapRecordingRef.current,
       };
       setLapHistory(prev => [...prev, newLapData]);
+
+      if (lapTime < bestLap) {
+        setBestLap(lapTime);
+        setBestLapData(lapRecordingRef.current);
+      }
     }
     lapRecordingRef.current = [];
 
@@ -458,6 +473,12 @@ export default function GameController({
     
     lapRecordingRef.current.push(newCarState);
 
+    // --- Ghost Car ---
+    if (bestLapData && bestLapData[gameFrame]) {
+        setGhostCarState(bestLapData[gameFrame]);
+    }
+    setGameFrame(f => f + 1);
+
 
     // --- Camera Smoothing ---
     setCameraState(prev => {
@@ -468,7 +489,7 @@ export default function GameController({
         return { x: newX, y: newY, angle: newAngle };
     });
 
-  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip]);
+  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip, bestLapData, gameFrame]);
 
 
   const startReplay = useCallback((lapData: CarState[]) => {
@@ -476,14 +497,6 @@ export default function GameController({
       setReplayData(lapData);
       setReplayFrame(0);
       setGhostCarState(lapData[0]);
-  }, []);
-
-  const stopReplay = useCallback(() => {
-      setGameState('idle');
-      setReplayData(null);
-      setReplayFrame(0);
-      setGhostCarState(null);
-      if (replayLoopRef.current) cancelAnimationFrame(replayLoopRef.current);
   }, []);
 
   const replayLoop = useCallback(() => {
@@ -544,6 +557,7 @@ export default function GameController({
         setLapTime(0);
         lapRecordingRef.current = [];
         passedCheckpoint.current = false;
+        setGameFrame(0);
       }
     } else {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
@@ -669,7 +683,7 @@ export default function GameController({
             tireMarks={tireMarks}
             isColliding={isColliding}
         >
-            {ghostCarState && (
+            {ghostCarState && (gameState === 'replaying' || (gameState === 'racing' && bestLapData)) && (
                 <GhostCar carState={ghostCarState} selectedCar={selectedCar} carColor={carColor} weather={weather} />
             )}
         </RaceTrack>
@@ -713,3 +727,5 @@ export default function GameController({
     </div>
   );
 }
+
+    
