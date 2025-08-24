@@ -3,7 +3,7 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Timer, ChevronsRight, ShieldAlert, Trophy } from 'lucide-react';
+import { Timer, ChevronsRight, ShieldAlert, Trophy, Clock } from 'lucide-react';
 import Speedometer from "./Speedometer";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ import DamageIndicator from "./DamageIndicator";
 interface DashboardProps {
   speed: number;
   lapTime: number;
+  totalTime: number;
   currentLap: number;
   totalLaps: number;
   bestLap: number;
@@ -46,7 +47,7 @@ const StatCard = ({ icon, title, value, unit, className }: { icon: React.ReactNo
   </div>
 );
 
-export default function Dashboard({ speed, lapTime, currentLap, totalLaps, bestLap, collisions, maxSpeed, lapProgress, carHealth }: DashboardProps) {
+export default function Dashboard({ speed, lapTime, totalTime, currentLap, totalLaps, bestLap, collisions, maxSpeed, lapProgress, carHealth }: DashboardProps) {
   const [isNewBestLap, setIsNewBestLap] = useState(false);
   const [prevBestLap, setPrevBestLap] = useState(bestLap);
 
@@ -77,11 +78,11 @@ export default function Dashboard({ speed, lapTime, currentLap, totalLaps, bestL
         )}
       </AnimatePresence>
       <CardContent className="p-4 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="lg:col-span-1 sm:col-span-3 flex items-center justify-center">
             <Speedometer speed={speed} maxSpeed={maxSpeed} />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 col-span-1 sm:col-span-3 lg:col-span-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 col-span-1 sm:col-span-3 lg:col-span-5 gap-4">
             <Tooltip>
                 <TooltipTrigger asChild>
                     <div>
@@ -90,6 +91,16 @@ export default function Dashboard({ speed, lapTime, currentLap, totalLaps, bestL
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>Time for the current lap.</p>
+                </TooltipContent>
+            </Tooltip>
+             <Tooltip>
+                <TooltipTrigger asChild>
+                    <div>
+                        <StatCard icon={<Clock className="h-5 w-5" />} title="Total Time" value={formatTime(totalTime)} />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Total elapsed time for the race.</p>
                 </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -137,3 +148,5 @@ export default function Dashboard({ speed, lapTime, currentLap, totalLaps, bestL
     </Card>
   );
 }
+
+    

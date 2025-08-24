@@ -106,6 +106,7 @@ export default function GameController({
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
   const [cameraState, setCameraState] = useState<CameraState>({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
   const [lapTime, setLapTime] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
   const [lapHistory, setLapHistory] = useState<LapData[]>([]);
   const [currentLap, setCurrentLap] = useState(0);
   const [bestLap, setBestLap] = useState(Infinity);
@@ -128,6 +129,7 @@ export default function GameController({
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
   const lapStartTimeRef = useRef<number>(0);
+  const raceStartTimeRef = useRef<number>(0);
   const lastTimestampRef = useRef<number>();
   const passedCheckpoint = useRef(false);
   const sparkIdCounter = useRef(0);
@@ -162,6 +164,7 @@ export default function GameController({
     setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
     setCurrentLap(0);
     setLapTime(0);
+    setTotalTime(0);
     setCollisions(0);
     setLapProgress(0);
     setCarHealth(100);
@@ -176,6 +179,7 @@ export default function GameController({
     setGameFrame(0);
     passedCheckpoint.current = false;
     if (lapStartTimeRef.current) lapStartTimeRef.current = 0;
+    if (raceStartTimeRef.current) raceStartTimeRef.current = 0;
     if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
     if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
   }, [stopReplay]);
@@ -193,6 +197,7 @@ export default function GameController({
     setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
     setCurrentLap(0);
     setLapTime(0);
+    setTotalTime(0);
     setCollisions(0);
     setLapProgress(0);
     setLapHistory([]);
@@ -208,7 +213,11 @@ export default function GameController({
           setGameState('paused');
       } else if (gameState === 'paused') {
           setGameState('racing');
-          lapStartTimeRef.current = performance.now() - lapTime; // Recalibrate start time
+          const now = performance.now();
+          lapStartTimeRef.current = now - lapTime; // Recalibrate start time
+          if (raceStartTimeRef.current > 0) {
+            raceStartTimeRef.current = now - totalTime;
+          }
       }
   }
 
@@ -294,9 +303,13 @@ export default function GameController({
     const deltaTime = (timestamp - lastTimestampRef.current) / 16.67; // Normalize to 60fps
     lastTimestampRef.current = timestamp;
     
-    // Update lap time
-    if (lapStartTimeRef.current > 0 && gameState === 'racing') {
-      setLapTime(timestamp - lapStartTimeRef.current);
+    if (gameState === 'racing') {
+        if (lapStartTimeRef.current > 0) {
+            setLapTime(timestamp - lapStartTimeRef.current);
+        }
+        if (raceStartTimeRef.current > 0) {
+            setTotalTime(timestamp - raceStartTimeRef.current);
+        }
     }
 
     let newCarState = { ...carState };
@@ -564,8 +577,9 @@ export default function GameController({
       gameLoopRef.current = requestAnimationFrame(runGameLoop);
       if (currentLap === 0) {
         setCurrentLap(1);
-        setLapTime(0);
-        lapStartTimeRef.current = performance.now();
+        const now = performance.now();
+        lapStartTimeRef.current = now;
+        raceStartTimeRef.current = now;
         lapRecordingRef.current = [];
         passedCheckpoint.current = false;
         setGameFrame(0);
@@ -690,6 +704,9 @@ export default function GameController({
               <AlertDialogDescription className="text-lg text-center">
                 Congratulations, {playerName}! You completed all {TOTAL_LAPS} laps.
                 <div className="font-mono text-xl text-foreground my-4">
+                    Total Time: {formatTime(totalTime)}
+                </div>
+                <div className="font-mono text-xl text-foreground my-4">
                     Best Lap: {formatTime(bestLap)}
                 </div>
               </AlertDialogDescription>
@@ -737,6 +754,7 @@ export default function GameController({
                     speed={Math.abs(carState.speed * (maxSpeed / MAX_INTERNAL_SPEED))}
                     maxSpeed={maxSpeed}
                     lapTime={lapTime}
+                    totalTime={totalTime}
                     currentLap={Math.min(currentLap, TOTAL_LAPS)}
                     totalLaps={TOTAL_LAPS}
                     bestLap={bestLap}
@@ -781,3 +799,5 @@ export default function GameController({
     </div>
   );
 }
+
+    
