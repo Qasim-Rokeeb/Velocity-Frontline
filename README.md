@@ -124,6 +124,7 @@ Each car has:
 - Real-time “ghost” racing against friends
 - Smart contract XP tracking (if moving onchain)
 - Allow setup on warpcast
+- Improve game UI
 
 ---
 
