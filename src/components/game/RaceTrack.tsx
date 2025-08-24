@@ -45,17 +45,18 @@ interface RaceTrackProps {
   fog: boolean;
   zoomLevel: number;
   cameraMode: CameraMode;
+  isAccelerating: boolean;
 }
 
-const CarSprite = ({ selectedCar, angle, speed, color, weather }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather }) => {
+const CarSprite = ({ selectedCar, angle, speed, color, weather, isAccelerating }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather, isAccelerating: boolean }) => {
     if (!selectedCar) return null;
 
     switch(selectedCar.id) {
-        case 'viper': return <ViperCar angle={angle} speed={speed} color={color} weather={weather} />;
-        case 'challenger': return <ChallengerCar angle={angle} speed={speed} color={color} weather={weather} />;
-        case 'porsche': return <PorscheCar angle={angle} speed={speed} color={color} weather={weather} />;
-        case 'lambo': return <LamboCar angle={angle} speed={speed} color={color} weather={weather} />;
-        default: return <ViperCar angle={angle} speed={speed} color={color} weather={weather} />;
+        case 'viper': return <ViperCar angle={angle} speed={speed} color={color} weather={weather} isAccelerating={isAccelerating} />;
+        case 'challenger': return <ChallengerCar angle={angle} speed={speed} color={color} weather={weather} isAccelerating={isAccelerating} />;
+        case 'porsche': return <PorscheCar angle={angle} speed={speed} color={color} weather={weather} isAccelerating={isAccelerating} />;
+        case 'lambo': return <LamboCar angle={angle} speed={speed} color={color} weather={weather} isAccelerating={isAccelerating} />;
+        default: return <ViperCar angle={angle} speed={speed} color={color} weather={weather} isAccelerating={isAccelerating} />;
     }
 }
 
@@ -72,7 +73,8 @@ export default function RaceTrack({
     weather, 
     fog,
     zoomLevel,
-    cameraMode
+    cameraMode,
+    isAccelerating,
 }: RaceTrackProps) {
 
   const worldStyle: React.CSSProperties = cameraMode === 'first-person' || cameraMode === 'chase'
@@ -174,7 +176,7 @@ export default function RaceTrack({
                 transition: 'left 0s, top 0s' // Car should move instantly
                 }}
             >
-                <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} color={carColor} weather={weather} />
+                <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} color={carColor} weather={weather} isAccelerating={isAccelerating} />
             </div>
 
             {sparks.map(spark => (

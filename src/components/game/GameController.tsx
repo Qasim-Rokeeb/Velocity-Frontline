@@ -112,6 +112,7 @@ export default function GameController({
   const [lapProgress, setLapProgress] = useState(0);
   const [carHealth, setCarHealth] = useState(100);
   const [sparks, setSparks] = useState<Spark[]>([]);
+  const [isAccelerating, setIsAccelerating] = useState(false);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -250,6 +251,7 @@ export default function GameController({
 
       const { accelerate, brake, left, right } = keybindings;
       const joystick = joystickDataRef.current;
+      let isAcceleratingInput = false;
 
       // --- Acceleration & Braking ---
       if (joystick.distance > 0) { // Joystick is active
@@ -258,15 +260,21 @@ export default function GameController({
         if (forwardComponent > 0) { // Moving joystick forward
           const acceleration = accelerationSensitivity * forwardComponent * (joystick.distance / 50);
           speed = Math.min(maxInternalSpeed, speed + acceleration);
+          isAcceleratingInput = true;
         } else { // Moving joystick backward
           const braking = brakeStrength * -forwardComponent * (joystick.distance / 50);
           speed = Math.max(maxReverseSpeed, speed - braking);
         }
       } else { // Keyboard controls
-        if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) speed = Math.min(maxInternalSpeed, speed + accelerationSensitivity);
+        if (autoAccelerate || keys.current.arrowup || keys.current[accelerate]) {
+            speed = Math.min(maxInternalSpeed, speed + accelerationSensitivity);
+            isAcceleratingInput = true;
+        }
         if (keys.current.arrowdown || keys.current[brake]) speed = Math.max(maxReverseSpeed, speed - brakeStrength);
       }
       
+      setIsAccelerating(isAcceleratingInput && speed > 0);
+
       speed *= friction;
       if (Math.abs(speed) < 0.01) speed = 0;
       
@@ -559,6 +567,7 @@ export default function GameController({
             fog={fog}
             zoomLevel={zoomLevel}
             cameraMode={cameraMode}
+            isAccelerating={isAccelerating}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
