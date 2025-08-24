@@ -12,6 +12,7 @@ import { Weather } from './WeatherToggle';
 import RainEffect from './RainEffect';
 import { CameraMode } from './CameraToggle';
 import TireMarks, { TireMark } from './TireMarks';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface Spark {
     id: number;
@@ -48,6 +49,7 @@ interface RaceTrackProps {
   cameraMode: CameraMode;
   isAccelerating: boolean;
   tireMarks: TireMark[];
+  isColliding: boolean;
 }
 
 const CarSprite = ({ selectedCar, angle, speed, color, weather, isAccelerating }: { selectedCar: Car | null, angle: number, speed: number, color: string, weather: Weather, isAccelerating: boolean }) => {
@@ -78,6 +80,7 @@ export default function RaceTrack({
     cameraMode,
     isAccelerating,
     tireMarks,
+    isColliding,
 }: RaceTrackProps) {
 
   const worldStyle: React.CSSProperties = cameraMode === 'first-person' || cameraMode === 'chase'
@@ -93,6 +96,16 @@ export default function RaceTrack({
 
   return (
     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center overflow-hidden relative">
+        <AnimatePresence>
+            {isColliding && (
+                <motion.div
+                    className="absolute inset-0 bg-red-500/50 z-50 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1, transition: { duration: 0.1 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                />
+            )}
+        </AnimatePresence>
         <MiniMap carPosition={carState} />
         <TouchControls keysRef={touchControlsRef} joystickDataRef={joystickDataRef} />
         {weather === 'rainy' && <RainEffect />}

@@ -115,6 +115,7 @@ export default function GameController({
   const [sparks, setSparks] = useState<Spark[]>([]);
   const [isAccelerating, setIsAccelerating] = useState(false);
   const [tireMarks, setTireMarks] = useState<TireMark[]>([]);
+  const [isColliding, setIsColliding] = useState(false);
 
   const keys = useRef<{ [key: string]: boolean }>({});
   const gameLoopRef = useRef<number>();
@@ -126,6 +127,7 @@ export default function GameController({
   const skidTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const skidAudioRef = useRef<HTMLAudioElement>(null);
   const lastCollisionTime = useRef(0);
+  const collisionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const formatTime = (time: number) => {
     if (time === Infinity || time === 0) return '00:00.000';
@@ -158,6 +160,7 @@ export default function GameController({
     passedCheckpoint.current = false;
     if (lapTimerRef.current) clearInterval(lapTimerRef.current);
     if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
+    if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
   }, []);
   
   const startGame = () => {
@@ -237,6 +240,10 @@ export default function GameController({
         }
         lastCollisionTime.current = now;
     }
+
+    setIsColliding(true);
+    if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
+    collisionTimeoutRef.current = setTimeout(() => setIsColliding(false), 200);
 
     let damage = 15; // Medium difficulty
     if (difficulty === 'easy') {
@@ -600,6 +607,7 @@ export default function GameController({
             cameraMode={cameraMode}
             isAccelerating={isAccelerating}
             tireMarks={tireMarks}
+            isColliding={isColliding}
         />
       </div>
       <div className="flex items-start gap-4 flex-col lg:flex-row">
