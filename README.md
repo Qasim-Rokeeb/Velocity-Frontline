@@ -145,7 +145,7 @@ Good first issues:
 
 ## 🧵 Credits
 
-- Game Design: [@yourhandle](https://warpcast.com/thecodinggeek)
+- Game Design: [@thecodinggeek](https://warpcast.com/thecodinggeek)
 - Inspired by early 2D racers and Twitch reflex games
 - Powered by the open social stack on [Farcaster](https://farcaster.xyz/)
 
