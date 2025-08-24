@@ -26,8 +26,15 @@ interface CarState {
     isSkidding: boolean;
 }
 
+interface CameraState {
+    x: number;
+    y: number;
+    angle: number;
+}
+
 interface RaceTrackProps {
   carState: CarState,
+  cameraState: CameraState,
   selectedCar: Car | null;
   carColor: string;
   sparks: Spark[];
@@ -55,6 +62,7 @@ const CarSprite = ({ selectedCar, angle, speed, color, weather }: { selectedCar:
 
 export default function RaceTrack({ 
     carState, 
+    cameraState,
     selectedCar, 
     carColor, 
     sparks, 
@@ -69,12 +77,13 @@ export default function RaceTrack({
 
   const worldStyle: React.CSSProperties = cameraMode === 'first-person' || cameraMode === 'chase'
   ? {
-      transform: `scale(${zoomLevel}) rotate(${-carState.angle - 90}deg) translate(${-carState.x + 400}px, ${-carState.y + 250}px)`,
+      transform: `scale(${zoomLevel}) rotate(${-cameraState.angle - 90}deg) translate(${-cameraState.x + 400}px, ${-cameraState.y + 250}px)`,
       transformOrigin: cameraMode === 'chase' ? `calc(${carState.x}px) calc(${carState.y}px + 100px)` : `${carState.x}px ${carState.y}px`,
-      transition: 'transform 0.05s linear',
+      transition: 'transform 0s', // Remove CSS transition, handled by lerp now
   } 
   : { 
-      transform: `scale(${zoomLevel})` 
+      transform: `scale(${zoomLevel})`,
+      transition: 'transform 0.5s ease-out'
   };
 
   return (
@@ -87,7 +96,7 @@ export default function RaceTrack({
         {fog && <div className="absolute inset-0 bg-white/30 backdrop-blur-sm z-20 pointer-events-none" />}
 
         <div 
-            className="transition-transform duration-500 ease-in-out" 
+            className="will-change-transform" 
             style={worldStyle}
         >
             <svg width="800" height="500" viewBox="0 0 800 500" className="relative z-10">
@@ -154,7 +163,7 @@ export default function RaceTrack({
             </svg>
             <div
                 className={cn(
-                    "absolute transition-transform duration-75 z-20",
+                    "absolute will-change-transform z-20",
                     carState.isSkidding && 'animate-shake',
                     cameraMode === 'first-person' && 'opacity-0' // Hide car in first person
                 )}
@@ -162,6 +171,7 @@ export default function RaceTrack({
                 left: `${carState.x}px`,
                 top: `${carState.y}px`,
                 transform: `translate(-50%, -50%)`,
+                transition: 'left 0s, top 0s' // Car should move instantly
                 }}
             >
                 <CarSprite selectedCar={selectedCar} angle={carState.angle} speed={carState.speed} color={carColor} weather={weather} />

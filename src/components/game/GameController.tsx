@@ -29,6 +29,7 @@ import { CameraMode } from './CameraToggle';
 
 type GameState = 'idle' | 'countdown' | 'racing' | 'finished' | 'paused';
 type CarState = { x: number; y: number; speed: number; angle: number; isSkidding: boolean };
+type CameraState = { x: number; y: number; angle: number };
 type Spark = { id: number; x: number; y: number };
 
 const INITIAL_CAR_STATE: CarState = {
@@ -69,6 +70,14 @@ interface GameControllerProps {
     cameraMode: CameraMode;
 }
 
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const lerpAngle = (a: number, b: number, t: number) => {
+    const delta = b - a;
+    if (delta > 180) b -= 360;
+    else if (delta < -180) b += 360;
+    return a + (b - a) * t;
+};
+
 
 export default function GameController({ 
     steeringSensitivity, 
@@ -92,6 +101,7 @@ export default function GameController({
 }: GameControllerProps) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [carState, setCarState] = useState<CarState>(INITIAL_CAR_STATE);
+  const [cameraState, setCameraState] = useState<CameraState>({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
   const [lapTime, setLapTime] = useState(0);
   const [lapHistory, setLapHistory] = useState<number[]>([]);
   const [currentLap, setCurrentLap] = useState(0);
@@ -122,12 +132,14 @@ export default function GameController({
 
   const resetCarPosition = useCallback(() => {
     setCarState(INITIAL_CAR_STATE);
+    setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
     passedCheckpoint.current = false;
   }, []);
 
   const resetGame = useCallback(() => {
     setGameState('idle');
     setCarState(INITIAL_CAR_STATE);
+    setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
     setCurrentLap(0);
     setLapTime(0);
     setCollisions(0);
@@ -146,6 +158,7 @@ export default function GameController({
     if (!selectedCar) return;
     resetGame();
     setCarState(INITIAL_CAR_STATE);
+    setCameraState({ x: INITIAL_CAR_STATE.x, y: INITIAL_CAR_STATE.y, angle: INITIAL_CAR_STATE.angle });
     setCurrentLap(0);
     setLapTime(0);
     setCollisions(0);
@@ -225,6 +238,7 @@ export default function GameController({
     const deltaTime = (timestamp - lastTimestampRef.current) / 16.67; // Normalize to 60fps
     lastTimestampRef.current = timestamp;
 
+    let newCarState = { ...carState };
     setCarState(prev => {
       let { x, y, speed, angle, isSkidding } = prev;
 
@@ -378,11 +392,21 @@ export default function GameController({
           handleLapCompletion();
           passedCheckpoint.current = false;
       }
-
-      return { x, y, speed, angle, isSkidding };
+      
+      newCarState = { x, y, speed, angle, isSkidding };
+      return newCarState;
     });
 
-  }, [handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip]);
+    // --- Camera Smoothing ---
+    setCameraState(prev => {
+        const smoothingFactor = 0.08 * deltaTime;
+        const newX = lerp(prev.x, newCarState.x, smoothingFactor);
+        const newY = lerp(prev.y, newCarState.y, smoothingFactor);
+        const newAngle = lerpAngle(prev.angle, newCarState.angle, smoothingFactor);
+        return { x: newX, y: newY, angle: newAngle };
+    });
+
+  }, [carState, handleLapCompletion, calculateLapProgress, handleCollision, steeringSensitivity, accelerationSensitivity, brakeStrength, autoAccelerate, steeringAssist, keybindings, maxSpeed, tireGrip]);
 
 
   useEffect(() => {
@@ -524,6 +548,7 @@ export default function GameController({
         </AlertDialog>
         <RaceTrack 
             carState={carState} 
+            cameraState={cameraState}
             selectedCar={selectedCar} 
             carColor={carColor}
             sparks={sparks}
