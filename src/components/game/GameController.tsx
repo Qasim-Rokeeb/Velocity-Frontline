@@ -557,7 +557,11 @@ export default function GameController({
   useEffect(() => {
     if (gameState === 'racing') {
       lastTimestampRef.current = performance.now();
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
+      const runGameLoop = (timestamp: number) => {
+          gameLoop(timestamp);
+          gameLoopRef.current = requestAnimationFrame(runGameLoop);
+      };
+      gameLoopRef.current = requestAnimationFrame(runGameLoop);
       if (currentLap === 0) {
         setCurrentLap(1);
         setLapTime(0);
@@ -576,7 +580,11 @@ export default function GameController({
 
   useEffect(() => {
       if (gameState === 'replaying') {
-          replayLoopRef.current = requestAnimationFrame(replayLoop);
+          const runReplayLoop = () => {
+              replayLoop();
+              replayLoopRef.current = requestAnimationFrame(runReplayLoop);
+          }
+          replayLoopRef.current = requestAnimationFrame(runReplayLoop);
       } else {
           if (replayLoopRef.current) cancelAnimationFrame(replayLoopRef.current);
       }
@@ -773,5 +781,3 @@ export default function GameController({
     </div>
   );
 }
-
-    

@@ -62,7 +62,7 @@ export default function Dashboard({ speed, lapTime, currentLap, totalLaps, bestL
   }, [bestLap, prevBestLap]);
 
   return (
-    <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl overflow-hidden">
+    <Card className="flex-1 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl overflow-hidden relative">
       <AnimatePresence>
         {isNewBestLap && (
             <motion.div
