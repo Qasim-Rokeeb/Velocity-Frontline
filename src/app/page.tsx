@@ -158,9 +158,7 @@ export default function Home() {
                 <SidebarTrigger />
                 <Logo />
               </div>
-            <p className="text-muted-foreground font-body max-w-2xl text-lg hidden md:block">
-              The ultimate browser-based racing challenge. Master the controls, perfect your line, and dominate the leaderboard.
-            </p>
+            
             <div className="flex items-center gap-2">
               <CameraToggle cameraMode={cameraMode} onCameraModeChange={setCameraMode} />
               <ZoomToggle zoomLevel={zoomLevel} onZoomChange={setZoomLevel} />
