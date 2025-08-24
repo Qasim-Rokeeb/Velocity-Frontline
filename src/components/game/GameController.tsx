@@ -173,7 +173,7 @@ export default function GameController({
     setTireMarks([]);
     setMaxSpeedReached(0);
     if (isRestart) {
-        stopReplay();
+        if(gameState === 'replaying') stopReplay();
         setLapHistory([]);
         setBestLap(Infinity);
         setBestLapData(null);
@@ -184,7 +184,7 @@ export default function GameController({
     if (raceStartTimeRef.current) raceStartTimeRef.current = 0;
     if (skidTimeoutRef.current) clearTimeout(skidTimeoutRef.current);
     if (collisionTimeoutRef.current) clearTimeout(collisionTimeoutRef.current);
-  }, [stopReplay]);
+  }, [stopReplay, gameState]);
 
   const resetCarPosition = useCallback(() => {
     setCarState(INITIAL_CAR_STATE);
