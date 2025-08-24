@@ -67,10 +67,10 @@ export default function RaceTrack({
     cameraMode
 }: RaceTrackProps) {
 
-  const worldStyle: React.CSSProperties = cameraMode === 'first-person' 
+  const worldStyle: React.CSSProperties = cameraMode === 'first-person' || cameraMode === 'chase'
   ? {
       transform: `scale(${zoomLevel}) rotate(${-carState.angle - 90}deg) translate(${-carState.x + 400}px, ${-carState.y + 250}px)`,
-      transformOrigin: `${carState.x}px ${carState.y}px`,
+      transformOrigin: cameraMode === 'chase' ? `calc(${carState.x}px) calc(${carState.y}px + 100px)` : `${carState.x}px ${carState.y}px`,
       transition: 'transform 0.05s linear',
   } 
   : { 
