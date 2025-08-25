@@ -11,7 +11,7 @@ import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard, SettingsIcon } fro
 import { cn } from '@/lib/utils';
 import Logo from '@/components/game/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import MusicToggle from '@/components/MusicToggle';
 import { Separator } from '@/components/ui/separator';
 import SettingsPanel, { Keybindings } from '@/components/game/SettingsPanel';
@@ -55,6 +55,7 @@ export default function Home() {
   const [fog, setFog] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [cameraMode, setCameraMode] = useState<CameraMode>('top-down');
+  const { toggleSidebar } = useSidebar();
 
 
   return (
@@ -168,11 +169,9 @@ export default function Home() {
                 <WeatherToggle weather={weather} onWeatherChange={setWeather} />
                 <MusicToggle />
                 <ThemeToggle />
-                <SidebarTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <SettingsIcon />
-                  </Button>
-                </SidebarTrigger>
+                <Button variant="outline" size="icon" onClick={toggleSidebar}>
+                  <SettingsIcon />
+                </Button>
               </div>
             </header>
             
@@ -205,5 +204,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
