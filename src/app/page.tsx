@@ -7,7 +7,7 @@ import GameController from '@/components/game/GameController';
 import DifficultyPanel from '@/components/game/DifficultyPanel';
 import Leaderboard from '@/components/game/Leaderboard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Keyboard, SettingsIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/game/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -21,6 +21,7 @@ import FogToggle from '@/components/game/FogToggle';
 import ZoomToggle from '@/components/game/ZoomToggle';
 import CameraToggle, { CameraMode } from '@/components/game/CameraToggle';
 import Footer from '@/components/game/Footer';
+import { Button } from '@/components/ui/button';
 
 const KeyDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
     <div className={cn(
@@ -58,7 +59,7 @@ export default function Home() {
 
   return (
     <div className="flex">
-      <Sidebar collapsible="icon">
+      <Sidebar collapsible="offcanvas">
         <SidebarContent className="space-y-4">
             <SettingsPanel 
                 steeringSensitivity={steeringSensitivity}
@@ -157,7 +158,6 @@ export default function Home() {
           <div className="w-full mx-auto max-w-7xl px-4 lg:px-8">
             <header className="w-full flex justify-between items-center text-center py-4">
                 <div className="flex items-center gap-4">
-                  <SidebarTrigger />
                   <Logo />
                 </div>
               
@@ -168,6 +168,11 @@ export default function Home() {
                 <WeatherToggle weather={weather} onWeatherChange={setWeather} />
                 <MusicToggle />
                 <ThemeToggle />
+                <SidebarTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <SettingsIcon />
+                  </Button>
+                </SidebarTrigger>
               </div>
             </header>
             
@@ -200,3 +205,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
