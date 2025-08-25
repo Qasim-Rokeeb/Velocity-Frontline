@@ -5,8 +5,8 @@ import { Button } from '../ui/button';
 
 export default function Footer() {
   return (
-    <footer className="w-full max-w-7xl text-center text-muted-foreground text-xs py-4 border-t border-border/20">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+    <footer className="w-full text-center text-muted-foreground text-xs py-4 mt-auto border-t border-border/20">
+      <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
         <p>
           Built by <a href="https://warpcast.com/thecodinggeek" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@thecodinggeek</a>. Powered by Next.js & Farcaster.
         </p>

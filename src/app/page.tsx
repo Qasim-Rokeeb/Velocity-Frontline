@@ -153,48 +153,51 @@ export default function Home() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <div className="flex flex-col min-h-screen bg-background text-foreground p-4 lg:p-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background">
-          <header className="w-full max-w-7xl flex justify-between items-center text-center mx-auto">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
-                <Logo />
+        <div className="flex flex-col min-h-screen bg-background text-foreground bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 to-background overflow-x-hidden">
+          <div className="w-full mx-auto max-w-7xl px-4 lg:px-8">
+            <header className="w-full flex justify-between items-center text-center py-4">
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger />
+                  <Logo />
+                </div>
+              
+              <div className="flex items-center gap-2">
+                <CameraToggle cameraMode={cameraMode} onCameraModeChange={setCameraMode} />
+                <ZoomToggle zoomLevel={zoomLevel} onZoomChange={setZoomLevel} />
+                <FogToggle isFoggy={fog} onFogChange={setFog} />
+                <WeatherToggle weather={weather} onWeatherChange={setWeather} />
+                <MusicToggle />
+                <ThemeToggle />
               </div>
+            </header>
             
-            <div className="flex items-center gap-2">
-              <CameraToggle cameraMode={cameraMode} onCameraModeChange={setCameraMode} />
-              <ZoomToggle zoomLevel={zoomLevel} onZoomChange={setZoomLevel} />
-              <FogToggle isFoggy={fog} onFogChange={setFog} />
-              <WeatherToggle weather={weather} onWeatherChange={setWeather} />
-              <MusicToggle />
-              <ThemeToggle />
-            </div>
-          </header>
-          
-          <main className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto my-8">
-              <GameController 
-                steeringSensitivity={steeringSensitivity} 
-                accelerationSensitivity={accelerationSensitivity}
-                brakeStrength={brakeStrength}
-                autoAccelerate={autoAccelerate}
-                steeringAssist={steeringAssist}
-                keybindings={keybindings}
-                carColor={carColor}
-                onCarColorChange={setCarColor}
-                playerName={playerName}
-                onPlayerNameChange={setPlayerName}
-                difficulty={difficulty}
-                onDifficultyChange={setDifficulty}
-                maxSpeed={maxSpeed}
-                tireGrip={tireGrip}
-                weather={weather}
-                fog={fog}
-                zoomLevel={zoomLevel}
-                cameraMode={cameraMode}
-              />
-          </main>
+            <main className="flex-1 flex flex-col items-center justify-center w-full mx-auto my-8">
+                <GameController 
+                  steeringSensitivity={steeringSensitivity} 
+                  accelerationSensitivity={accelerationSensitivity}
+                  brakeStrength={brakeStrength}
+                  autoAccelerate={autoAccelerate}
+                  steeringAssist={steeringAssist}
+                  keybindings={keybindings}
+                  carColor={carColor}
+                  onCarColorChange={setCarColor}
+                  playerName={playerName}
+                  onPlayerNameChange={setPlayerName}
+                  difficulty={difficulty}
+                  onDifficultyChange={setDifficulty}
+                  maxSpeed={maxSpeed}
+                  tireGrip={tireGrip}
+                  weather={weather}
+                  fog={fog}
+                  zoomLevel={zoomLevel}
+                  cameraMode={cameraMode}
+                />
+            </main>
+          </div>
           <Footer />
         </div>
       </SidebarInset>
     </div>
   );
 }
+

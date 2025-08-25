@@ -3,8 +3,8 @@ import React from 'react';
 
 export default function Logo() {
   return (
-    <div className="flex items-center justify-center" style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))' }}>
-      <svg width="400" height="80" viewBox="0 0 400 80">
+    <div className="flex items-center justify-center w-[200px] md:w-[400px]" style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))' }}>
+      <svg width="100%" height="auto" viewBox="0 0 400 80">
         <defs>
           <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="hsl(var(--primary))" />
