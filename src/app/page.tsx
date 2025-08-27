@@ -1,14 +1,14 @@
-
 // src/app/page.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, useSidebar } from '@/components/ui/sidebar';
 import { SettingsIcon } from 'lucide-react';
 import Logo from '@/components/game/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import MusicToggle from '@/components/MusicToggle';
 import Footer from '@/components/game/Footer';
+import CockpitHUD from '@/components/game/CockpitHUD';
 
 export default function Home() {
   const { toggleSidebar } = useSidebar();
@@ -41,10 +41,7 @@ export default function Home() {
             </header>
             
             <main className="flex-1 flex flex-col items-center justify-center w-full mx-auto my-8">
-                <div className="text-center">
-                    <h1 className="text-5xl font-headline text-primary">Welcome to Nitro Rush</h1>
-                    <p className="mt-4 text-lg text-muted-foreground">Let's build a new game!</p>
-                </div>
+                <CockpitHUD />
             </main>
           </div>
           <Footer />
