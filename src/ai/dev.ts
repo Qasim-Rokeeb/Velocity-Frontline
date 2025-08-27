@@ -1,4 +1,4 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/dynamic-difficulty.ts';
+// Flows are imported here so that Genkit can discover them.
